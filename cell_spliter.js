@@ -174,7 +174,7 @@ macro
 
 
 macro
-"define_line_spliting_out_ruffles [y]"
+"define_line_splitting_out_ruffles [y]"
 {
     setTool("freeline");
     waitForUser("Trace out the line splitting out ruffles (please ensure the 2 ends of the lines are outside of the cell area) and hit OK");
@@ -286,7 +286,7 @@ macro
 
 
 macro
-"measure_intensities_on_first_channel [m]"
+"measure_intensities_on_all_channels [m]"
 {
     // Each one of them is select first and then move channel. If you move channel first, the measurement will occur on back on the channel the ROI was defined
     selectROIByName("whole_cell");
@@ -356,11 +356,11 @@ macro
 
     run("define_whole_cell_area [x]");
 
-    run("define_line_spliting_out_ruffles [y]");
+    run("define_line_splitting_out_ruffles [y]");
 
     run("split_cell_area_by_line_ruffles [s]");
 
-    run("measure_intensities_on_first_channel [m]");
+    run("measure_intensities_on_all_channels [m]");
 
     run("save_measurements [o]");
 
