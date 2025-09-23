@@ -282,6 +282,8 @@ macro
     find_non_ruffle_roi_from_split(idxes_roi_from_split);
 
     subtract_whole_cell_by_non_ruffles();
+
+    save_all_roi();
 }
 
 
