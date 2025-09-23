@@ -30,6 +30,10 @@ function get_stack_name() { //Obtain the stack name from the current window
         //Do nothing
     }
 
+    if (indexOf(stack_name, " ") != -1) {
+        stack_name = replace(stack_name, " ", "_");
+    }
+
     // print("Stack name is "+stack_name); //For debugging
     return stack_name;
 }
@@ -43,10 +47,18 @@ function save_selection_as_ROI(ROI_name) {
     roiManager("Select", last_idx); // The newly added ROI will be the last one
     roiManager("Rename", ROI_name); //Rename the ROI so when you import them back later, it'll have a meaningful name
 
-    stack_title = get_stack_name();
-    save_directory = judge_make_directory("Fiji_output\\ROI");
-    roiManager("Save", save_directory + "\\" + stack_title + "_" + ROI_name + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
+}
 
+function save_all_roi(){
+    selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area", "non_ruffles", "ruffles"));
+
+    stack_title = get_stack_name();
+
+
+    save_directory = judge_make_directory("Fiji_output\\ROI");
+    roiManager("Save", save_directory + "\\" +stack_title + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
+
+    // Caveat here is that when you have multiple ROI selected in the ROI manager, you should save it as .zip; when you have only 1 ROI selected, you should save it as .roi--in this case, if you still save as .zip, it'll save all the ROI in the current ROI manager
 }
 
 function selectROIsByNames(nameArray) {
@@ -162,7 +174,7 @@ macro
 
 
 macro
-"define_line_spliting_out_ruffles [y]"
+"define_line_splitting_out_ruffles [y]"
 {
     setTool("freeline");
     waitForUser("Trace out the line splitting out ruffles (please ensure the 2 ends of the lines are outside of the cell area) and hit OK");
@@ -183,6 +195,7 @@ function turn_line_ruffles_into_shape() {
 function split_whole_cell_area_with_line_ruffles() {
     selectROIsByNames(newArray("whole_cell", "line_ruffles_area"));
     roiManager("XOR");
+    roiManager("Split");
 }
 
 function extract_roi_from_split() {
@@ -232,8 +245,7 @@ function find_non_ruffle_roi_from_split(idxes_roi_from_split) {
 
         // Rename the found non-ruffle area
         roiManager("Select", idxes_roi_from_split[max_area_idx]);
-        roiManager("Rename", "non_ruffles");
-        save_selection_as_ROI("non_ruffles");
+        save_selection_as_ROI("non_ruffles"); // This makes a duplication of the biigest ROI from split since all the sub ROI generated from the split will be deleted by the code below
 
 
         // Iterate through all the ROI in the manager and delete all the remaining ROI from split
@@ -264,17 +276,17 @@ macro
     turn_line_ruffles_into_shape();
     split_whole_cell_area_with_line_ruffles();
 
-    roiManager("Split");
-
     idxes_roi_from_split = extract_roi_from_split();
     find_non_ruffle_roi_from_split(idxes_roi_from_split);
 
     subtract_whole_cell_by_non_ruffles();
+
+    save_all_roi();
 }
 
 
 macro
-"measure_intensities_on_first_channel [m]"
+"measure_intensities_on_all_channels [m]"
 {
     // Each one of them is select first and then move channel. If you move channel first, the measurement will occur on back on the channel the ROI was defined
     selectROIByName("whole_cell");
@@ -344,11 +356,11 @@ macro
 
     run("define_whole_cell_area [x]");
 
-    run("define_line_spliting_out_ruffles [y]");
+    run("define_line_splitting_out_ruffles [y]");
 
     run("split_cell_area_by_line_ruffles [s]");
 
-    run("measure_intensities_on_first_channel [m]");
+    run("measure_intensities_on_all_channels [m]");
 
     run("save_measurements [o]");
 
