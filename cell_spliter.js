@@ -30,6 +30,10 @@ function get_stack_name() { //Obtain the stack name from the current window
         //Do nothing
     }
 
+    if (indexOf(stack_name, " ") != -1) {
+        stack_name = replace(stack_name, " ", "_");
+    }
+
     // print("Stack name is "+stack_name); //For debugging
     return stack_name;
 }
