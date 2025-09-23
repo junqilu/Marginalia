@@ -245,8 +245,7 @@ function find_non_ruffle_roi_from_split(idxes_roi_from_split) {
 
         // Rename the found non-ruffle area
         roiManager("Select", idxes_roi_from_split[max_area_idx]);
-        roiManager("Rename", "non_ruffles");
-        save_selection_as_ROI("non_ruffles");
+        save_selection_as_ROI("non_ruffles"); // This makes a duplication of the biigest ROI from split since all the sub ROI generated from the split will be deleted by the code below
 
 
         // Iterate through all the ROI in the manager and delete all the remaining ROI from split
