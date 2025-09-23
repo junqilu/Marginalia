@@ -195,6 +195,7 @@ function turn_line_ruffles_into_shape() {
 function split_whole_cell_area_with_line_ruffles() {
     selectROIsByNames(newArray("whole_cell", "line_ruffles_area"));
     roiManager("XOR");
+    roiManager("Split");
 }
 
 function extract_roi_from_split() {
