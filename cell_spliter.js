@@ -276,8 +276,6 @@ macro
     turn_line_ruffles_into_shape();
     split_whole_cell_area_with_line_ruffles();
 
-    roiManager("Split");
-
     idxes_roi_from_split = extract_roi_from_split();
     find_non_ruffle_roi_from_split(idxes_roi_from_split);
 
