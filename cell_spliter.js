@@ -47,10 +47,18 @@ function save_selection_as_ROI(ROI_name) {
     roiManager("Select", last_idx); // The newly added ROI will be the last one
     roiManager("Rename", ROI_name); //Rename the ROI so when you import them back later, it'll have a meaningful name
 
-    stack_title = get_stack_name();
-    save_directory = judge_make_directory("Fiji_output\\ROI");
-    roiManager("Save", save_directory + "\\" + stack_title + "_" + ROI_name + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
+}
 
+function save_all_roi(){
+    selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area", "non_ruffles", "ruffles"));
+
+    stack_title = get_stack_name();
+
+
+    save_directory = judge_make_directory("Fiji_output\\ROI");
+    roiManager("Save", save_directory + "\\" +stack_title + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
+
+    // Caveat here is that when you have multiple ROI selected in the ROI manager, you should save it as .zip; when you have only 1 ROI selected, you should save it as .roi--in this case, if you still save as .zip, it'll save all the ROI in the current ROI manager
 }
 
 function selectROIsByNames(nameArray) {
