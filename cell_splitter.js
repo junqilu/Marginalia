@@ -521,6 +521,6 @@ macro
 
     run("save_overlaid_img [i]");
 
-    run("clean_things_up_for_next [c]");
+    run("finish_up [f]");
 
 }
