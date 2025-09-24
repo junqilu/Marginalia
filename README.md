@@ -28,13 +28,16 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 
 ## Code behaviour explanation
 
-1. After pressing `Z`, the code automatically adjust the images for contrast and move to the actin channel
+1. After pressing `Z`, the code automatically set up the output folder directory, rename slices, adjust the images for
+   contrast, and move to the actin channel
 1. Code asks users to select out multiple areas as background using the rectangle tool.
     * Once a background area is
       selected, press `A` to add it onto the image
-    * 3 background areas are enough
+    * 3 background areas are enough but the user can add more
     * After the user clicks OK, these areas' intensities will be averaged to calculate out a value as the background
-      intensity for that slice. Then that value will be subtracted out from the whole image for the background reduction
+      intensity for that slice. Each slice's background intensity will be subtracted out from the whole slice for the
+      background reduction purposes
+    * Background areas' measurements are saved locally
 
 <div align="center">
 <img src="readme_imgs/cell.png" width="300">
@@ -111,7 +114,8 @@ This directory stores the code for cell_splitter plugin for ImageJ.
       non_ruffles</code> (${\textsf{\color{blue}blue}}$) should be equal to the area of <code style="color : red">
       whole_cell</code> (${\textsf{\color{red}red}}$)
 1. <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) and <code style="color : blue">
-   ruffles</code> (${\textsf{\color{blue}blue}}$) are overlaid on the actin channel and save as a new image for quality
+   ruffles</code> (${\textsf{\color{blue}blue}}$) are overlaid on the actin channel and the target gene channel,
+   respectively. Both overlaid images are saved for quality
    check and records
     * Now you can see that <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$)
       and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) share the same dividing line, which
@@ -127,3 +131,5 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 <img src="readme_imgs/ruffles_non_ruffles_overlay.png" width="300">
 <img src="readme_imgs/ruffles_non_ruffles_overlay_line_ruffles.png" width="300">
 </div>
+
+12. Processed stack is saved locally in case of quality check

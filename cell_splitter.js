@@ -30,7 +30,7 @@ function get_stack_name() { //Obtain the stack name from the current window
         //Do nothing
     }
 
-    if (indexOf(stack_name, " ") != -1) {
+    if (indexOf(stack_name, " ") != -1) { // Replace any space by _
         stack_name = replace(stack_name, " ", "_");
     }
 
@@ -469,30 +469,50 @@ macro
 macro
 "save_overlaid_img [i]"
 {
-    // After this step, the ROI stack info will be lost so you have to do the measurements before thsi step
-    setSlice(1); // Go to the 2nd channel for overlay since it's where the ROI are defined
+    // After this step, the ROI stack info will be lost so you have to do the measurements before this step
 
     selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area"));
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
 
-    selectROIByName("ruffles");
-    roiManager("Show All");
-    run("Flatten", "slice");
 
-    old_stack_title = get_stack_name();
-    rename("split_overlay_on_definiation_channel" + old_stack_title);
-    stack_title = get_stack_name();
-    save_directory = judge_make_directory("Fiji_output\\ROI_overlay");
+    original_stack_window = getTitle();
+    for (i = 1; i < nSlices + 1; i++) {
+        if (i <= 2) { // I only want the overlay image for the 1st 2 slices
+            selectWindow(original_stack_window); // Ensure you always go back to the original image stack. This is a 2nd protection the in addition to the close() in the end of the loop
 
-    saveAs("Jpeg", save_directory + "\\" + stack_title + ".jpg");
-    saveAs("Tiff", save_directory + "\\" + stack_title + ".tif");
-    saveAs("PNG", save_directory + "\\" + stack_title + ".png");
-    close();
+            setSlice(i);
+            slice_name = getInfo("slice.label"); // slice_name will also contain the stack name here. This need to happen before the run("Flatten", "slice");
+
+            // selectROIByName("ruffles"); // Somehow you cannot select here (you actually don't need to). If you select here, somehow the code will take the slice back to the slice where ROI "ruffles" was defined and made the flattening there
+            roiManager("Show All without labels"); // My labels are "ruffles" and "non_ruffles". Choose not to label ROI on the overlay since the locations are a bit off with such long string labels
+            run("Flatten", "slice");
+
+            rename("split_overlaid_" + slice_name); // This renames the overlaid image
+            run("Set Label...", "label=[" + slice_name + "_split_overlaid]"); // However, that overlaid image also has a slice and the name needs to be corrected
+
+            stack_title = get_stack_name();
+            save_directory = judge_make_directory("Fiji_output\\ROI_overlay");
+
+            saveAs("Jpeg", save_directory + "\\" + stack_title + ".jpg");
+            saveAs("Tiff", save_directory + "\\" + stack_title + ".tif");
+            // saveAs("PNG", save_directory + "\\" + stack_title + ".png");
+
+            close();
+        }
+    }
+}
+
+function save_processed_stack() {
+    filename_stack = get_stack_name();
+    save_directory = judge_make_directory("Fiji_output\\processed_stack");
+    saveAs("Tiff", save_directory + "\\" + filename_stack + "_processed.tif");
 }
 
 macro
 "finish_up [f]"
 {
+    save_processed_stack();
+
     roiManager("Reset");
 
     close("ROI Manager");
