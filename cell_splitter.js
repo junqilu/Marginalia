@@ -469,25 +469,31 @@ macro
 macro
 "save_overlaid_img [i]"
 {
-    // After this step, the ROI stack info will be lost so you have to do the measurements before thsi step
-    setSlice(1); // Go to the 2nd channel for overlay since it's where the ROI are defined
+    // After this step, the ROI stack info will be lost so you have to do the measurements before this step
 
     selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area"));
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
 
-    selectROIByName("ruffles");
-    roiManager("Show All");
-    run("Flatten", "slice");
+    for (i = 1; i < nSlices + 1; i++) {
+        if (i <= 2) { // I only want the overlay image for the 1st 2 slices
+            setSlice(i);
 
-    old_stack_title = get_stack_name();
-    rename("split_overlay_on_definiation_channel" + old_stack_title);
-    stack_title = get_stack_name();
-    save_directory = judge_make_directory("Fiji_output\\ROI_overlay");
+            selectROIByName("ruffles");
+            roiManager("Show All");
+            run("Flatten", "slice");
 
-    saveAs("Jpeg", save_directory + "\\" + stack_title + ".jpg");
-    saveAs("Tiff", save_directory + "\\" + stack_title + ".tif");
-    saveAs("PNG", save_directory + "\\" + stack_title + ".png");
-    close();
+            slice_name = getInfo("slice.label"); // slice_name will also contain the stack name here
+
+            rename("split_overlaid_" + slice_name);
+            stack_title = get_stack_name();
+            save_directory = judge_make_directory("Fiji_output\\ROI_overlay");
+
+            saveAs("Jpeg", save_directory + "\\" + stack_title + ".jpg");
+            saveAs("Tiff", save_directory + "\\" + stack_title + ".tif");
+            saveAs("PNG", save_directory + "\\" + stack_title + ".png");
+            close();
+        }
+    }
 }
 
 macro
