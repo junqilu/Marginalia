@@ -36,7 +36,7 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 <img src="readme_imgs/cell.png" width="300">
 </div>
 
-2. It asks the user to use the freehand shape tool to trace out the whole cell area and this gives <code style="color : red">whole_cell</code>
+2. It asks the user to use the freehand shape tool to trace out the whole cell area and this gives <code style="color : red">whole_cell</code> $${\color{test}Red}$$
 
 <div align="center">
 <img src="readme_imgs/whole_cell.png" width="300">
