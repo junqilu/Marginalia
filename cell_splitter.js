@@ -491,7 +491,7 @@ macro
 }
 
 macro
-"clean_things_up_for_next [c]"
+"finish_up [f]"
 {
     roiManager("Reset");
 
@@ -506,6 +506,8 @@ macro
     run("setup_output_folder [u]");
 
     run("display_and_slice_renaming [d]");
+
+    run("clean_background [c]");
 
     run("define_whole_cell_area [x]");
 
