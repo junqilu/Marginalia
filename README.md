@@ -90,4 +90,5 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 
 <div align="center">
 <img src="readme_imgs/ruffles_non_ruffles_overlay.png" width="300">
+<img src="readme_imgs/ruffles_non_ruffles_overlay_line_ruffles.png" width="300">
 </div>
