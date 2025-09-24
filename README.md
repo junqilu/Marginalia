@@ -72,7 +72,7 @@ This directory stores the code for cell_splitter plugin for ImageJ.
     * I did this because the previous step will make <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) a gap so you will lose some pixels covered by <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$). In this
       way, there’s no pixels lost
     * This also means that pixels from <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) will be included in <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$). Consequently, user should draw the
-      <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) adjacent to but also inside the <code style="color : blue">ruffles</code>'s edge that's facing the <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$)
+      <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) adjacent to but also inside the edge of <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) that's facing the <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$)
       * This is usually not an issue since the code set the width of <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) to 1 px. If you're using a way bigger px as the width, this should be taken care of by suggestions above
 
 <div align="center">
@@ -83,8 +83,8 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 8. All ROI are saved locally
 1. The intensities within <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$), <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$), and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) are measured on the slices for target gene and
    actin
-    * As a sanity check, the same ROI on different channels should be measured as the same area. The sum of <code style="color : blue">ruffles</code>'s area and <code style="color : blue">non_ruffles</code>'s area should be equal to <code style="color : red">whole_cell</code>'s area
-1. <code style="color : blue">non_ruffles</code> and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) are overlaid on the actin channel and save as a new image for quality check and records 
+    * As a sanity check, the same ROI on different channels should be measured as the same area. The sum of the areas of <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) and <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) should be equal to the area of <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$)
+1. <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) are overlaid on the actin channel and save as a new image for quality check and records 
 
 <div align="center">
 <img src="readme_imgs/ruffles_non_ruffles_overlay.png" width="300">
