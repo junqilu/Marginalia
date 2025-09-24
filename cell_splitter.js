@@ -30,7 +30,7 @@ function get_stack_name() { //Obtain the stack name from the current window
         //Do nothing
     }
 
-    if (indexOf(stack_name, " ") != -1) {
+    if (indexOf(stack_name, " ") != -1) { // Replace any space by _
         stack_name = replace(stack_name, " ", "_");
     }
 
