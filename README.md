@@ -36,22 +36,22 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 <img src="readme_imgs/cell.png" width="300">
 </div>
 
-2. It asks the user to use the freehand shape tool to trace out the whole cell area and this gives <code style="color : red">whole_cell</code>
+2. It asks the user to use the freehand shape tool to trace out the whole cell area and this gives <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$)
 
 <div align="center">
 <img src="readme_imgs/whole_cell.png" width="300">
 </div>
 
 3. It asks the user to use the freehand line tool to trace the boarder between the ruffles and other part of the cell.
-   That boarder line is <code style="color : orange">line_ruffles</code> 
+   That boarder line is <code style="color : orange">line_ruffles</code> (orange)
     * Ensure that the terminus of the line go outside the closed shape for cell
 
 <div align="center">
 <img src="readme_imgs/line_ruffles.png" width="300">
 </div>
 
-4. With <code style="color : orange">line_ruffles</code> selected, Edit → Selection → Properties and set the width as 1 px
-1. Edit → Selection → Line to area and this gives <code style="color : purple">line_ruffles_area</code>  
+4. With <code style="color : orange">line_ruffles</code> (orange) selected, Edit → Selection → Properties and set the width as 1 px
+1. Edit → Selection → Line to area and this gives <code style="color : purple">line_ruffles_area</code> (pueple)
 
 <div align="center">
 <img src="readme_imgs/line_ruffles_area_generate.png" width="300">
