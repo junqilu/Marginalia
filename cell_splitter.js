@@ -178,11 +178,27 @@ function rename_slices() {
     }
 }
 
+
+function display_with_auto_contrast() {
+    contrast_sturated_pixels_percentages = newArray(0.1, 1); // These numbers are manually tested to be the best for each slice. You can run run("Enhance Contrast", "saturated="+number); in the new macro window to test multiple numbers for a slice and find the best one
+
+    for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
+        //nSlices is the predefined variable that stores the total number of slices in a stack
+        if (i <= 2) { // I only enhance the contrast for the 1st 2 slices
+            setSlice(i);
+
+            run("Enhance Contrast", "saturated=" + contrast_sturated_pixels_percentages[i - 1]); // This doesn't change the original intensity values on the images (raw image data is still intact and the process is reversible) but will change the image that the overlay will use
+        }
+    }
+}
+
+
 macro
 "display_and_slice_renaming [d]"
 {
     rename_slices();
-    setSlice(2); //Go back to the 2nd slice for the actin image, which will be used to define cell areas
+
+    display_with_auto_contrast();
 }
 
 
