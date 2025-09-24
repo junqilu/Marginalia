@@ -43,23 +43,23 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 </div>
 
 3. It asks the user to use the freehand line tool to trace the boarder between the ruffles and other part of the cell.
-   That boarder line is <code style="color : orange">line_ruffles</code> (orange)
+   That boarder line is <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$)
     * Ensure that the terminus of the line go outside the closed shape for cell
 
 <div align="center">
 <img src="readme_imgs/line_ruffles.png" width="300">
 </div>
 
-4. With <code style="color : orange">line_ruffles</code> (orange) selected, Edit → Selection → Properties and set the width as 1 px
-1. Edit → Selection → Line to area and this gives <code style="color : purple">line_ruffles_area</code> (pueple)
+4. With <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) selected, Edit → Selection → Properties and set the width as 1 px
+1. Edit → Selection → Line to area and this gives <code style="color : purple">line_ruffles_area</code> (${\textsf{\color{purple}purple}}$)
 
 <div align="center">
 <img src="readme_imgs/line_ruffles_area_generate.png" width="300">
 <img src="readme_imgs/line_ruffles_area.png" width="300">
 </div>
 
-6. With <code style="color : red">whole_cell</code> and <code style="color : purple">line_ruffles_area</code> selected, apply XOR and split the resulting ROI. In the multiple resulting
-   ROI from the split, the one with the largest area is <code style="color : blue">non_ruffles</code>
+6. With <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$) and <code style="color : purple">line_ruffles_area</code> (${\textsf{\color{purple}purple}}$) selected, apply XOR and split the resulting ROI. In the multiple resulting
+   ROI from the split, the one with the largest area is <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$)
    * XOR works by removing the area that 2 sets are overlapping and keep the ones that aren't overlapped 
 
 <div align="center">
@@ -68,12 +68,12 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 <img src="readme_imgs/non_ruffles.png" width="300">
 </div>
 
-7. With <code style="color : red">whole_cell</code> and <code style="color : blue">non_ruffles</code> selected, apply XOR and this gives <code style="color : blue">ruffles</code>
-    * I did this because the previous step will make <code style="color : orange">line_ruffles</code> a gap so you will lose some pixels covered by <code style="color : orange">line_ruffles</code>. In this
+7. With <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$) and <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) selected, apply XOR and this gives <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$)
+    * I did this because the previous step will make <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) a gap so you will lose some pixels covered by <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$). In this
       way, there’s no pixels lost
-    * This also means that pixels from <code style="color : orange">line_ruffles</code> will be included in <code style="color : blue">ruffles</code>. Consequently, user should draw the
-      <code style="color : orange">line_ruffles</code> adjacent to but also inside the <code style="color : blue">ruffles</code>'s edge that's facing the <code style="color : blue">non_ruffles</code>
-      * This is usually not an issue since the code set the width of <code style="color : orange">line_ruffles</code> to 1 px. If you're using a way bigger px as the width, this should be taken care of by suggestions above
+    * This also means that pixels from <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) will be included in <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$). Consequently, user should draw the
+      <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) adjacent to but also inside the <code style="color : blue">ruffles</code>'s edge that's facing the <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$)
+      * This is usually not an issue since the code set the width of <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) to 1 px. If you're using a way bigger px as the width, this should be taken care of by suggestions above
 
 <div align="center">
 <img src="readme_imgs/whole_cell_non_ruffles_XOR.png" width="300">
@@ -81,10 +81,10 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 </div>
 
 8. All ROI are saved locally
-1. The intensities within <code style="color : red">whole_cell</code> , <code style="color : blue">non_ruffles</code>, and <code style="color : blue">ruffles</code> are measured on the slices for target gene and
+1. The intensities within <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$), <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$), and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) are measured on the slices for target gene and
    actin
     * As a sanity check, the same ROI on different channels should be measured as the same area. The sum of <code style="color : blue">ruffles</code>'s area and <code style="color : blue">non_ruffles</code>'s area should be equal to <code style="color : red">whole_cell</code>'s area
-1. <code style="color : blue">non_ruffles</code> and <code style="color : blue">ruffles</code> are overlaid on the actin channel and save as a new image for quality check and records 
+1. <code style="color : blue">non_ruffles</code> and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) are overlaid on the actin channel and save as a new image for quality check and records 
 
 <div align="center">
 <img src="readme_imgs/ruffles_non_ruffles_overlay.png" width="300">
