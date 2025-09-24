@@ -474,8 +474,8 @@ macro
     selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area"));
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
 
-    original_stack_window = getTitle();
 
+    original_stack_window = getTitle();
     for (i = 1; i < nSlices + 1; i++) {
         if (i <= 2) { // I only want the overlay image for the 1st 2 slices
             selectWindow(original_stack_window); // Ensure you always go back to the original image stack. This is a 2nd protection the in addition to the close() in the end of the loop
@@ -484,11 +484,11 @@ macro
             slice_name = getInfo("slice.label"); // slice_name will also contain the stack name here. This need to happen before the run("Flatten", "slice");
 
             // selectROIByName("ruffles"); // Somehow you cannot select here (you actually don't need to). If you select here, somehow the code will take the slice back to the slice where ROI "ruffles" was defined and made the flattening there
-            roiManager("Show All with labels");
+            roiManager("Show All without labels"); // My labels are "ruffles" and "non_ruffles". Choose not to label ROI on the overlay since the locations are a bit off with such long string labels
             run("Flatten", "slice");
 
             rename("split_overlaid_" + slice_name); // This renames the overlaid image
-            run("Set Label...", "label=[" + slice_name+ "_split_overlaid]"); // However, that overlaid image also has a slice and the name needs to be corrected
+            run("Set Label...", "label=[" + slice_name + "_split_overlaid]"); // However, that overlaid image also has a slice and the name needs to be corrected
 
             stack_title = get_stack_name();
             save_directory = judge_make_directory("Fiji_output\\ROI_overlay");
