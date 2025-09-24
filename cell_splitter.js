@@ -96,6 +96,31 @@ function selectROIByName(roi_name_to_select) {
     exit("ROI named '" + roi_name_to_select + "' not found.");
 }
 
+function append_to_array(input_array, append_value) { //ImageJ script seems to lack a very basic append to an array function
+    // input_array = Array.concat(input_array, append_value); //This doesn't work in some places since JavaScript passes arrays by reference and this line doesn't modify the input_array in place. When you reassign input_array, it creates a new local variable that doesn't affect the original array
+
+    output_array = newArray();
+
+    for (i = 0; i < input_array.length; i++) {
+        output_array[i] = input_array[i]; // Copy existing elements to the new array
+    }
+    output_array[input_array.length] = append_value; // Add the new element to the end
+    return output_array; // Return the new array
+
+}
+
+function average_array_num(input_array_num) { //input_array_num is an array of numbers and this function return the average from those numbers
+    if (input_array_num.length == 0) {
+        return 0; // Return 0 for an empty array to avoid division by zero.
+    } else {
+        sum = 0;
+        for (i = 0; i < input_array_num.length; i++) {
+            sum += input_array_num[i];
+        }
+        return sum / input_array_num.length;
+    }
+}
+
 //Functions for file management
 function obtain_desktop_directory() {//Obtain the string for desktop's directory on different computer
     path = getDirectory("home") + "Desktop\\";
