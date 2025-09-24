@@ -85,6 +85,8 @@ This directory stores the code for cell_splitter plugin for ImageJ.
    actin
     * As a sanity check, the same ROI on different channels should be measured as the same area. The sum of the areas of <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) and <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) should be equal to the area of <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$)
 1. <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) are overlaid on the actin channel and save as a new image for quality check and records 
+    * Now you can see that <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) and <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$) share the same dividing line, which was the edge of <code style="color : blue">non_ruffles</code> (${\textsf{\color{blue}blue}}$) that faces the ruffles area
+    * You can also see that the pixels covered by the original <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) now becomes part of the <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$). This is the reason why user should draw the <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) on the edge of but still within the area of <code style="color : blue">ruffles</code> (${\textsf{\color{blue}blue}}$)
 
 <div align="center">
 <img src="readme_imgs/ruffles_non_ruffles_overlay.png" width="300">
