@@ -202,6 +202,115 @@ macro
 }
 
 
+macro
+"add_selection_to_ROI_manager [a]"
+{ //Add current selection into ROI manager
+    //If you don't have a selection before this function, you'll have an error
+    run("Add Selection..."); //Add the selection to overlay but doesn't open the ROI manager and doesn't show you the update on the ROI manager
+}
+
+function measure_background() { //Iterate through all ROI (background areas selected by the user)
+    run("To ROI Manager");
+    ROI_count = roiManager("count"); //Obtain the total number of ROI in the manager
+
+    ROI_array = newArray(ROI_count);
+    for (i = 0; i < ROI_count; i++) { //Iterate through all ROI
+        //All the ROIs' names are in the format of "count-4digit" so the original order of ROIs is correct
+        roiManager("Select", i); //Select each ROI by order
+
+        roiManager("Rename", "Background_" + i + 1); //Rename because the original name has a random 4-digit number as part of it. i+1 because the index should start from 1 from a biological perspective
+        ROI_array[i] = i;
+    }
+
+    //print_array(ROI_array);
+
+    roiManager("Select", ROI_array); // Select all background rectangles
+
+    roiManager("Measure"); // Measure on the 2nd channel
+
+    setSlice(1); // Go back to 1st channel
+    roiManager("Measure"); // Measure on the 1st channel
+
+    //Measurements will go to the measurement table
+}
+
+function save_background_data() {
+    image_name = get_stack_name();
+
+    FileName = "background_data_for_" + image_name + ".csv";
+    save_directory = judge_make_directory("Fiji_output\\Background_data");
+    saveAs("Results", save_directory + "\\" + FileName);
+}
+
+
+function average_background() {
+
+    // Initialize an array to store the "Mean" values where "Slice" = 1
+    mean_slice_1 = newArray();
+    mean_slice_2 = newArray();
+
+    for (row = 0; row < nResults; row++) { // Loop through the rows in the Results Table
+        label = getResultLabel(row);
+
+        if ((matches(label, ".*LactC2$"))) {
+            mean_slice_1 = append_to_array(mean_slice_1, getResult("Mean", row));
+        } else if ((matches(label, ".*Actin$"))) {
+            mean_slice_2 = append_to_array(mean_slice_2, getResult("Mean", row));
+        } else {
+            print("Nothing found");
+        }
+
+    }
+
+    avg_background_slice_1 = average_array_num(mean_slice_1);
+    avg_background_slice_2 = average_array_num(mean_slice_2);
+
+    print("Slice 1's average background is " + avg_background_slice_1);
+    print("Slice 2's average background is " + avg_background_slice_2);
+
+    return newArray(avg_background_slice_1, avg_background_slice_2); //ImageJ script language doesn't have something similar to dict
+}
+
+function subtract_background(input_avg_background_array) {
+    for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
+        if (i <= 2) { //Skip the last slice, which is the bright-field
+            setSlice(i);
+            run("Subtract...", "value=" + input_avg_background_array[i - 1] + " slice"); //The slice option limits the changes to that specific slice
+            //The index for the array uses [i - 1] here because the array indexes start from 0 but the indexes for slices in a stack start from 1
+        }
+    }
+}
+
+function force_close_roi_manager() {
+    //Close ROI manager without that annoying window pop out
+    roiManager("reset"); //Clean up ROI manager such that when you close the manager in the next line, there's no pop out window
+    close("ROI Manager");
+}
+
+macro
+"clean_background [c]"
+{
+    setTool("rectangle"); //Change the selection tool to rectangle which is the most commonly used tool for selecting the background
+    waitForUser("Once you finish adding selection for background with shortcut key [a], click OK");
+
+    measure_background();
+
+    save_background_data();
+
+    avg_background = average_background();
+
+    run("Select None"); //This deselect anything on the images. Without this line, the next line of subtracting the background will only occur within the last ROI
+
+    subtract_background(avg_background);
+
+    force_close_roi_manager();
+
+    //The Results table and the Log are for debugging. Normally I don't need to see them since after the background subtraction, I can tell it's successful by seeing lots of 0-value pixels in the background
+    close("Results");
+    close("Log");
+}
+
+
 // Functions for area defining
 macro
 "define_whole_cell_area [x]"
