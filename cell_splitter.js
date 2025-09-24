@@ -502,9 +502,17 @@ macro
     }
 }
 
+function save_processed_stack() {
+    filename_stack = get_stack_name();
+    save_directory = judge_make_directory("Fiji_output\\processed_stack");
+    saveAs("Tiff", save_directory + "\\" + filename_stack + "_processed.tif");
+}
+
 macro
 "finish_up [f]"
 {
+    save_processed_stack();
+
     roiManager("Reset");
 
     close("ROI Manager");
