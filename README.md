@@ -36,7 +36,7 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 <img src="readme_imgs/cell.png" width="300">
 </div>
 
-2. It asks the user to use the freehand shape tool to trace out the whole cell area and this gives <code style="color : red">whole_cell</code> ${\textsf{\color{lightgreen}Green}}$
+2. It asks the user to use the freehand shape tool to trace out the whole cell area and this gives ${\textsf{\color{red}whole_cell}}$
 
 
 <div align="center">
@@ -44,23 +44,23 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 </div>
 
 3. It asks the user to use the freehand line tool to trace the boarder between the ruffles and other part of the cell.
-   That boarder line is <code style="color : orange">line_ruffles</code> 
+   That boarder line is ${\textsf{\color{orange}line_ruffles}}$ 
     * Ensure that the terminus of the line go outside the closed shape for cell
 
 <div align="center">
 <img src="readme_imgs/line_ruffles.png" width="300">
 </div>
 
-4. With <code style="color : orange">line_ruffles</code> selected, Edit → Selection → Properties and set the width as 1 px
-1. Edit → Selection → Line to area and this gives <code style="color : purple">line_ruffles_area</code>  
+4. With ${\textsf{\color{orange}line_ruffles}}$ selected, Edit → Selection → Properties and set the width as 1 px
+1. Edit → Selection → Line to area and this gives ${\textsf{\color{purple}line_ruffles_area}}$
 
 <div align="center">
 <img src="readme_imgs/line_ruffles_area_generate.png" width="300">
 <img src="readme_imgs/line_ruffles_area.png" width="300">
 </div>
 
-6. With <code style="color : red">whole_cell</code> and <code style="color : purple">line_ruffles_area</code> selected, apply XOR and split the resulting ROI. In the multiple resulting
-   ROI from the split, the one with the largest area is <code style="color : blue">non_ruffles</code>
+6. With ${\textsf{\color{red}whole_cell}}$ and ${\textsf{\color{purple}line_ruffles_area}}$ selected, apply XOR and split the resulting ROI. In the multiple resulting
+   ROI from the split, the one with the largest area is ${\textsf{\color{blue}non_ruffles}}$
    * XOR works by removing the area that 2 sets are overlapping and keep the ones that aren't overlapped 
 
 <div align="center">
@@ -69,12 +69,12 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 <img src="readme_imgs/non_ruffles.png" width="300">
 </div>
 
-7. With <code style="color : red">whole_cell</code> and <code style="color : blue">non_ruffles</code> selected, apply XOR and this gives <code style="color : blue">ruffles</code>
-    * I did this because the previous step will make <code style="color : orange">line_ruffles</code> a gap so you will lose some pixels covered by <code style="color : orange">line_ruffles</code>. In this
+7. With ${\textsf{\color{red}whole_cell}}$ and ${\textsf{\color{blue}non_ruffles}}$ selected, apply XOR and this gives ${\textsf{\color{blue}ruffles}}$
+    * I did this because the previous step will make ${\textsf{\color{orange}line_ruffles}}$ a gap so you will lose some pixels covered by ${\textsf{\color{orange}line_ruffles}}$. In this
       way, there’s no pixels lost
-    * This also means that pixels from <code style="color : orange">line_ruffles</code> will be included in <code style="color : blue">ruffles</code>. Consequently, user should draw the
-      <code style="color : orange">line_ruffles</code> adjacent to but also inside the <code style="color : blue">ruffles</code>'s edge that's facing the <code style="color : blue">non_ruffles</code>
-      * This is usually not an issue since the code set the width of <code style="color : orange">line_ruffles</code> to 1 px. If you're using a way bigger px as the width, this should be taken care of by suggestions above
+    * This also means that pixels from ${\textsf{\color{orange}line_ruffles}}$ will be included in ${\textsf{\color{blue}ruffles}}$. Consequently, user should draw the
+      ${\textsf{\color{orange}line_ruffles}}$ adjacent to but also inside the ${\textsf{\color{blue}ruffles}}$'s edge that's facing the ${\textsf{\color{blue}non_ruffles}}$
+      * This is usually not an issue since the code set the width of ${\textsf{\color{orange}line_ruffles}}$ to 1 px. If you're using a way bigger px as the width, this should be taken care of by suggestions above
 
 <div align="center">
 <img src="readme_imgs/whole_cell_non_ruffles_XOR.png" width="300">
@@ -82,10 +82,10 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 </div>
 
 8. All ROI are saved locally
-1. The intensities within <code style="color : red">whole_cell</code> , <code style="color : blue">non_ruffles</code>, and <code style="color : blue">ruffles</code> are measured on the slices for target gene and
+1. The intensities within ${\textsf{\color{red}whole_cell}}$, ${\textsf{\color{blue}non_ruffles}}$, and ${\textsf{\color{blue}ruffles}}$ are measured on the slices for target gene and
    actin
-    * As a sanity check, the same ROI on different channels should be measured as the same area. The sum of <code style="color : blue">ruffles</code>'s area and <code style="color : blue">non_ruffles</code>'s area should be equal to <code style="color : red">whole_cell</code>'s area
-1. <code style="color : blue">non_ruffles</code> and <code style="color : blue">ruffles</code> are overlaid on the actin channel and save as a new image for quality check and records 
+    * As a sanity check, the same ROI on different channels should be measured as the same area. The sum of ${\textsf{\color{blue}ruffles}}$'s area and ${\textsf{\color{blue}non_ruffles}}$'s area should be equal to ${\textsf{\color{red}whole_cell}}$'s area
+1. ${\textsf{\color{blue}non_ruffles}}$ and ${\textsf{\color{blue}ruffles}}$ are overlaid on the actin channel and save as a new image for quality check and records 
 
 <div align="center">
 <img src="readme_imgs/ruffles_non_ruffles_overlay.png" width="300">
