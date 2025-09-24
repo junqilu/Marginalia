@@ -49,14 +49,14 @@ function save_selection_as_ROI(ROI_name) {
 
 }
 
-function save_all_roi(){
+function save_all_roi() {
     selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area", "non_ruffles", "ruffles"));
 
     stack_title = get_stack_name();
 
 
     save_directory = judge_make_directory("Fiji_output\\ROI");
-    roiManager("Save", save_directory + "\\" +stack_title + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
+    roiManager("Save", save_directory + "\\" + stack_title + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
 
     // Caveat here is that when you have multiple ROI selected in the ROI manager, you should save it as .zip; when you have only 1 ROI selected, you should save it as .roi--in this case, if you still save as .zip, it'll save all the ROI in the current ROI manager
 }
@@ -94,6 +94,31 @@ function selectROIByName(roi_name_to_select) {
         }
     }
     exit("ROI named '" + roi_name_to_select + "' not found.");
+}
+
+function append_to_array(input_array, append_value) { //ImageJ script seems to lack a very basic append to an array function
+    // input_array = Array.concat(input_array, append_value); //This doesn't work in some places since JavaScript passes arrays by reference and this line doesn't modify the input_array in place. When you reassign input_array, it creates a new local variable that doesn't affect the original array
+
+    output_array = newArray();
+
+    for (i = 0; i < input_array.length; i++) {
+        output_array[i] = input_array[i]; // Copy existing elements to the new array
+    }
+    output_array[input_array.length] = append_value; // Add the new element to the end
+    return output_array; // Return the new array
+
+}
+
+function average_array_num(input_array_num) { //input_array_num is an array of numbers and this function return the average from those numbers
+    if (input_array_num.length == 0) {
+        return 0; // Return 0 for an empty array to avoid division by zero.
+    } else {
+        sum = 0;
+        for (i = 0; i < input_array_num.length; i++) {
+            sum += input_array_num[i];
+        }
+        return sum / input_array_num.length;
+    }
 }
 
 //Functions for file management
@@ -153,11 +178,136 @@ function rename_slices() {
     }
 }
 
+
+function display_with_auto_contrast() {
+    contrast_sturated_pixels_percentages = newArray(0.1, 1); // These numbers are manually tested to be the best for each slice. You can run run("Enhance Contrast", "saturated="+number); in the new macro window to test multiple numbers for a slice and find the best one
+
+    for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
+        //nSlices is the predefined variable that stores the total number of slices in a stack
+        if (i <= 2) { // I only enhance the contrast for the 1st 2 slices
+            setSlice(i);
+
+            run("Enhance Contrast", "saturated=" + contrast_sturated_pixels_percentages[i - 1]); // This doesn't change the original intensity values on the images (raw image data is still intact and the process is reversible) but will change the image that the overlay will use
+        }
+    }
+}
+
+
 macro
 "display_and_slice_renaming [d]"
 {
     rename_slices();
-    setSlice(2); //Go back to the 2nd slice for the actin image, which will be used to define cell areas
+
+    display_with_auto_contrast();
+}
+
+
+macro
+"add_selection_to_ROI_manager [a]"
+{ //Add current selection into ROI manager
+    //If you don't have a selection before this function, you'll have an error
+    run("Add Selection..."); //Add the selection to overlay but doesn't open the ROI manager and doesn't show you the update on the ROI manager
+}
+
+function measure_background() { //Iterate through all ROI (background areas selected by the user)
+    run("To ROI Manager");
+    ROI_count = roiManager("count"); //Obtain the total number of ROI in the manager
+
+    ROI_array = newArray(ROI_count);
+    for (i = 0; i < ROI_count; i++) { //Iterate through all ROI
+        //All the ROIs' names are in the format of "count-4digit" so the original order of ROIs is correct
+        roiManager("Select", i); //Select each ROI by order
+
+        roiManager("Rename", "Background_" + i + 1); //Rename because the original name has a random 4-digit number as part of it. i+1 because the index should start from 1 from a biological perspective
+        ROI_array[i] = i;
+    }
+
+    //print_array(ROI_array);
+
+    roiManager("Select", ROI_array); // Select all background rectangles
+
+    roiManager("Measure"); // Measure on the 2nd channel
+
+    setSlice(1); // Go back to 1st channel
+    roiManager("Measure"); // Measure on the 1st channel
+
+    //Measurements will go to the measurement table
+}
+
+function save_background_data() {
+    image_name = get_stack_name();
+
+    FileName = "background_data_for_" + image_name + ".csv";
+    save_directory = judge_make_directory("Fiji_output\\Background_data");
+    saveAs("Results", save_directory + "\\" + FileName);
+}
+
+
+function average_background() {
+
+    // Initialize an array to store the "Mean" values where "Slice" = 1
+    mean_slice_1 = newArray();
+    mean_slice_2 = newArray();
+
+    for (row = 0; row < nResults; row++) { // Loop through the rows in the Results Table
+        label = getResultLabel(row);
+
+        if ((matches(label, ".*LactC2$"))) {
+            mean_slice_1 = append_to_array(mean_slice_1, getResult("Mean", row));
+        } else if ((matches(label, ".*Actin$"))) {
+            mean_slice_2 = append_to_array(mean_slice_2, getResult("Mean", row));
+        } else {
+            print("Nothing found");
+        }
+
+    }
+
+    avg_background_slice_1 = average_array_num(mean_slice_1);
+    avg_background_slice_2 = average_array_num(mean_slice_2);
+
+    print("Slice 1's average background is " + avg_background_slice_1);
+    print("Slice 2's average background is " + avg_background_slice_2);
+
+    return newArray(avg_background_slice_1, avg_background_slice_2); //ImageJ script language doesn't have something similar to dict
+}
+
+function subtract_background(input_avg_background_array) {
+    for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
+        if (i <= 2) { //Skip the last slice, which is the bright-field
+            setSlice(i);
+            run("Subtract...", "value=" + input_avg_background_array[i - 1] + " slice"); //The slice option limits the changes to that specific slice
+            //The index for the array uses [i - 1] here because the array indexes start from 0 but the indexes for slices in a stack start from 1
+        }
+    }
+}
+
+function force_close_roi_manager() {
+    //Close ROI manager without that annoying window pop out
+    roiManager("reset"); //Clean up ROI manager such that when you close the manager in the next line, there's no pop out window
+    close("ROI Manager");
+}
+
+macro
+"clean_background [c]"
+{
+    setTool("rectangle"); //Change the selection tool to rectangle which is the most commonly used tool for selecting the background
+    waitForUser("Once you finish adding selection for background with shortcut key [a], click OK");
+
+    measure_background();
+
+    save_background_data();
+
+    avg_background = average_background();
+
+    run("Select None"); //This deselect anything on the images. Without this line, the next line of subtracting the background will only occur within the last ROI
+
+    subtract_background(avg_background);
+
+    force_close_roi_manager();
+
+    //The Results table and the Log are for debugging. Normally I don't need to see them since after the background subtraction, I can tell it's successful by seeing lots of 0-value pixels in the background
+    close("Results");
+    close("Log");
 }
 
 
@@ -330,15 +480,18 @@ macro
     run("Flatten", "slice");
 
     old_stack_title = get_stack_name();
-    rename("split_overlay_on_definiation_channel" + old_stack_title + ".jpg");
+    rename("split_overlay_on_definiation_channel" + old_stack_title);
     stack_title = get_stack_name();
     save_directory = judge_make_directory("Fiji_output\\ROI_overlay");
+
     saveAs("Jpeg", save_directory + "\\" + stack_title + ".jpg");
+    saveAs("Tiff", save_directory + "\\" + stack_title + ".tif");
+    saveAs("PNG", save_directory + "\\" + stack_title + ".png");
     close();
 }
 
 macro
-"clean_things_up_for_next [c]"
+"finish_up [f]"
 {
     roiManager("Reset");
 
@@ -354,6 +507,8 @@ macro
 
     run("display_and_slice_renaming [d]");
 
+    run("clean_background [c]");
+
     run("define_whole_cell_area [x]");
 
     run("define_line_splitting_out_ruffles [y]");
@@ -366,6 +521,6 @@ macro
 
     run("save_overlaid_img [i]");
 
-    run("clean_things_up_for_next [c]");
+    run("finish_up [f]");
 
 }
