@@ -480,10 +480,13 @@ macro
     run("Flatten", "slice");
 
     old_stack_title = get_stack_name();
-    rename("split_overlay_on_definiation_channel" + old_stack_title + ".jpg");
+    rename("split_overlay_on_definiation_channel" + old_stack_title);
     stack_title = get_stack_name();
     save_directory = judge_make_directory("Fiji_output\\ROI_overlay");
+
     saveAs("Jpeg", save_directory + "\\" + stack_title + ".jpg");
+    saveAs("Tiff", save_directory + "\\" + stack_title + ".tif");
+    saveAs("PNG", save_directory + "\\" + stack_title + ".png");
     close();
 }
 
