@@ -581,7 +581,7 @@ macro
 
     run("define_whole_cell_area [x]");
 
-    run("define_line_splitting_out_ruffles [y]");
+    run("define_lines_splitting_out_ruffles [y]");
 
     run("split_cell_area_by_line_ruffles [s]");
 
@@ -592,5 +592,4 @@ macro
     run("save_overlaid_img [i]");
 
     run("finish_up [f]");
-
 }
