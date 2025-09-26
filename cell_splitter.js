@@ -328,7 +328,7 @@ macro
 "clean_background [c]"
 {
     setTool("rectangle"); //Change the selection tool to rectangle which is the most commonly used tool for selecting the background
-    waitForUser("Once you finish adding selection for background with shortcut key [a], click OK");
+    smart_wait_for_user("Add rectangle selection(s) for background with shortcut key [a].\n", 100, 2, 100);
 
     measure_background();
 
@@ -358,7 +358,8 @@ macro
     setSlice(2);
 
     setTool("freehand");
-    waitForUser("Trace out the whole cell and hit OK");
+
+    smart_wait_for_user("Trace out the whole cell.\n", 100, 2, 100);
 
     run("Add Selection...", "stroke=red width=1 fill=none"); //Add the traced cell to overlay so user can see it when tracing the splitting line.
 
@@ -372,7 +373,7 @@ macro
 "define_lines_splitting_out_ruffles [y]"
 {
     setTool("freeline");
-    waitForUser("Trace out the lines splitting out ruffles (please ensure the 2 ends of the lines are outside of the cell area) with shortcut key [a] and hit OK when you're done");
+    smart_wait_for_user("Trace out the lines splitting out ruffles with shortcut key [a].\nPlease ensure the 2 ends of the lines are outside of the cell area\.n", 100, 3, 100);
 }
 
 // Functions for ROI splitting
