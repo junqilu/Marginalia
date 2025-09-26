@@ -232,6 +232,7 @@ function average_background() {
     // Initialize an array to store the "Mean" values where "Slice" = 1
     mean_slice_1 = newArray();
     mean_slice_2 = newArray();
+    mean_slice_3 = newArray();
 
     for (row = 0; row < nResults; row++) { // Loop through the rows in the Results Table
         label = getResultLabel(row);
@@ -240,6 +241,8 @@ function average_background() {
             mean_slice_1 = append_to_array(mean_slice_1, getResult("Mean", row));
         } else if ((matches(label, ".*Actin$"))) {
             mean_slice_2 = append_to_array(mean_slice_2, getResult("Mean", row));
+        } else if ((matches(label, ".*DAPI$"))) {
+            mean_slice_3 = append_to_array(mean_slice_3, getResult("Mean", row));
         } else {
             print("Nothing found");
         }
@@ -248,11 +251,10 @@ function average_background() {
 
     avg_background_slice_1 = average_array_num(mean_slice_1);
     avg_background_slice_2 = average_array_num(mean_slice_2);
+    avg_background_slice_3 = average_array_num(mean_slice_3);
 
-    print("Slice 1's average background is " + avg_background_slice_1);
-    print("Slice 2's average background is " + avg_background_slice_2);
 
-    return newArray(avg_background_slice_1, avg_background_slice_2); //ImageJ script language doesn't have something similar to dict
+    return newArray(avg_background_slice_1, avg_background_slice_2, avg_background_slice_3); //ImageJ script language doesn't have something similar to dict
 }
 
 function subtract_background(input_avg_background_array) {
