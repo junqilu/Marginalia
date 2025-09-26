@@ -213,10 +213,7 @@ function measure_background() { //Iterate through all ROI (background areas sele
 
     roiManager("Select", ROI_array); // Select all background rectangles
 
-    roiManager("Measure"); // Measure on the 2nd channel
-
-    setSlice(1); // Go back to 1st channel
-    roiManager("Measure"); // Measure on the 1st channel
+    roiManager("multi-measure measure_all"); // Measure all background ROI on all slices
 
     //Measurements will go to the measurement table
 }
