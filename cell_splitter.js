@@ -522,7 +522,6 @@ macro
     // After this step, the ROI stack info will be lost so you have to do the measurements before this step
     selectROIsByRegex("^(whole_cell|line_ruffles_.*|line_ruffles_area_.*)$");
 
-    selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area"));
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
 
 
