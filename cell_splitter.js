@@ -96,6 +96,18 @@ function append_to_array(input_array, append_value) { //ImageJ script seems to l
 
 }
 
+function check_item_in_array(input_array, input_item) {
+    output_bool = false;
+    for (i = 0; i < input_array.length; i++) {
+        if (input_array[i] == input_item) {
+            output_bool = true;
+            break;
+        }
+    }
+
+    return output_bool;
+}
+
 function average_array_num(input_array_num) { //input_array_num is an array of numbers and this function return the average from those numbers
     if (input_array_num.length == 0) {
         return 0; // Return 0 for an empty array to avoid division by zero.
@@ -119,7 +131,7 @@ function smart_wait_for_user(display_message, window_width, window_height, check
         if (titles_check[i] == text_window_title) {
             // Here it means the opened text window is still open
             waitForUser("A smart wait for user window already exists! Something is wrong!");
-            return ;
+            return;
         }
     }
 
@@ -156,10 +168,10 @@ function smart_wait_for_user(display_message, window_width, window_height, check
 macro
 "close_smart_wait_for_user [q]"
 {
-    if (isOpen("Instruction")){
+    if (isOpen("Instruction")) {
         selectWindow("Instruction");
         run("Close");
-    }else{
+    } else {
         waitForUser("No Instruction window exists! Something is wrong!");
     }
 }
@@ -195,14 +207,104 @@ function judge_make_directory(output_folder_name) { //Check whether output_folde
     return output_folder_directory;
 }
 
+function judge_file_exist(file_directory) { //Judge whether file_directory exists
+    fileExists = File.exists(file_directory);
+
+    // Print the result
+    if (fileExists) {
+        return true;
+    } else {
+        return false
+    }
+}
+
+function judge_directory_exists(directory_str) {
+    if (File.isDirectory(directory_str)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function create_text_file(file_directory) {
+    if (!File.exists(file_directory)) { // Only create it if it doesn't exist; otherwise the original file will be overwritten
+        File.saveString("", file_directory); // Create an empty .txt file
+
+        do {
+            wait(10);
+        } while (!File.exists(file_directory)); //Ensure the text file is successfully created
+    } else {
+
+    }
+}
+
+function read_text_file_as_array(text_file_directory) {
+    if (judge_file_exist(text_file_directory) == true) {
+
+        file_strings = File.openAsString(text_file_directory);
+
+        // I have to do the 2 lines below since when writing the mode text file using the print function, the file will have an additional new line character that I need to get rid of for the comparison later
+        file_strings_array = split(file_strings, "\n");
+    } else {
+        file_strings_array = newArray("Input .txt file doesn't exist!");
+    }
+
+    return file_strings_array;
+}
+
 macro
 "setup_output_folder [u]"
 {
-    judge_make_directory("Fiji_output"); //Judge whether the desktop has a "Fiji_output" and if not, make that folder
+    save_directory = judge_make_directory("Fiji_output"); //Judge whether the desktop has a "Fiji_output" and if not, make that folder
     //If the folder is already there, nothing will happen
+
+    processed_imgs_file_directory = save_directory + "\\proceesed_imgs.txt"; //This will record the images that have been processed along the way, in case if you need to process an image more than once. For example, if you have images that contains more than 1 cell that you want to process, instead of duplicating and renaming the input image files, you use this functionality to reprocess the same image without the 2nd cell's results overwriting the 1st cell's results
+
+    create_text_file(processed_imgs_file_directory);
 }
 
 // Automatic functions
+
+function rename_stack_and_record() {
+    // Obtain the original file name
+    filename = get_stack_name(); // This is the input filename without the file extension
+    if (indexOf(filename, " ") != -1) { // Replace any space by _
+        filename = replace(filename, " ", "_");
+    }
+
+    // Find all the filename in the processed_img.txt
+    save_directory = judge_make_directory("Fiji_output");
+    processed_imgs_file_directory = save_directory + "\\proceesed_imgs.txt";
+
+    processeed_img_filenames = read_text_file_as_array(processed_imgs_file_directory);
+
+    filename_first = filename + "_0";
+    if (!check_item_in_array(processeed_img_filenames, filename_first)) {
+        filename_new = filename_first;
+    } else {
+        max_idx = 0;
+        // Check if it's in the processed_img.txt
+        for (i = 0; i < processeed_img_filenames.length; i++) {
+            filename_line = processeed_img_filenames[i];
+
+            filename_parts = split(filename_line, "_");
+
+            idx = parseInt(filename_parts[filename_parts.length - 1]);
+            if (idx <= max_idx) {
+
+            } else {
+                max_idx = idx;
+            }
+        }
+
+        filename_new = filename + "_" + (max_idx + 1);
+    }
+
+    File.append(filename_new, processed_imgs_file_directory);
+
+    rename(filename_new);
+}
+
 function rename_slices() {
     filename = get_stack_name();
 
@@ -239,6 +341,9 @@ function display_with_auto_contrast() {
 macro
 "display_and_slice_renaming [d]"
 {
+    rename_stack_and_record(); // You can comment out this function call if you're sure that each input image contains only 1 cell that you want to analyze.
+    // If you have multiple cells on 1 image that you want to analyze, then you either duplicate those input image files, or you use rename_stack_and_record() and just reopen the same image but continue to process the next cell. All you need to ensure is that each image file has a unique name since that will be used to judge whether the image has been processed before
+
     rename_slices();
 
     display_with_auto_contrast();
