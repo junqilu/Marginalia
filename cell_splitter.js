@@ -479,6 +479,12 @@ function subtract_whole_cell_by_non_ruffles() {
 macro
 "split_cell_area_by_line_ruffles [s]"
 {
+    run("To ROI Manager"); // Now ROI for whole_cell and all the line_ruffles should be added to the ROI manager
+    roiManager("Show All without labels");
+
+    find_whole_cell_and_line_ruffles();
+
+
     turn_line_ruffles_into_shape();
     split_whole_cell_area_with_line_ruffles();
 
