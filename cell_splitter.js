@@ -367,29 +367,23 @@ function split_whole_cell_area_with_line_ruffles() {
     selectROIsByRegex("^(whole_cell|line_ruffles_area_.*)$"); // This select the ROI named "whole_cell" and the ones started with "line_ruffles_area_"
     roiManager("XOR");
     roiManager("Split");
-}
 
-function extract_roi_from_split() {
-    // Iterate through the ROI list and found the ones that are from the split (their name start with 0)
+    roi_count = roiManager("count");
 
-    roi_count = roiManager("Count");
-    indices = newArray();
-    indices_counter = 0;
-
+    // After a split, some of the resulting ROI are actually a composite selection (this adds a small tail on the non_ruffles and ruffles areas), so I added one more check on each of the roi
     for (i = 0; i < roi_count; i++) {
         roiManager("Select", i);
         roi_name = Roi.getName();
 
-        // print(roi_name);
-        if (matches(roi_name, "^0.*")) { // All sub ROI from the split will have a name starting with 0 (if more later, I guess it'll just be a number but for the purpose of )
-            indices[indices_counter] = i;
-
-            indices_counter++;
+        if (matches(roi_name, "^0.*")) {
+            if (current_composite_selection() == true) {
+                roiManager("Split");
+            } else {
+            }
         }
-
     }
 
-    return indices; // This array contains all the ROI from the split
+    roiManager("Show None"); // This just means to only show the ROI being selected, not all of them
 }
 
 
