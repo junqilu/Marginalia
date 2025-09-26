@@ -259,11 +259,9 @@ function average_background() {
 
 function subtract_background(input_avg_background_array) {
     for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
-        if (i <= 2) { //Skip the last slice, which is the bright-field
-            setSlice(i);
-            run("Subtract...", "value=" + input_avg_background_array[i - 1] + " slice"); //The slice option limits the changes to that specific slice
-            //The index for the array uses [i - 1] here because the array indexes start from 0 but the indexes for slices in a stack start from 1
-        }
+        setSlice(i);
+        run("Subtract...", "value=" + input_avg_background_array[i - 1] + " slice"); //The slice option limits the changes to that specific slice
+        //The index for the array uses [i - 1] here because the array indexes start from 0 but the indexes for slices in a stack start from 1
     }
 }
 
