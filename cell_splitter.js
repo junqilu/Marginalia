@@ -427,6 +427,15 @@ function find_non_ruffle_roi_from_split(idxes_roi_from_split) {
     }
 }
 
+function current_composite_selection() {
+    selection_type = selectionType();  // -1 if none
+    if (selection_type == 9) { // 9 is composite
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function subtract_whole_cell_by_non_ruffles() {
     selectROIsByRegex("^(whole_cell|non_ruffles)$");
 
