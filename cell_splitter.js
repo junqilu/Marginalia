@@ -316,13 +316,10 @@ macro
 
 
 macro
-"define_line_splitting_out_ruffles [y]"
+"define_lines_splitting_out_ruffles [y]"
 {
     setTool("freeline");
-    waitForUser("Trace out the line splitting out ruffles (please ensure the 2 ends of the lines are outside of the cell area) and hit OK");
-
-    run("Remove Overlay"); // This is necessary so the whole cell area doesn't add together with the line
-    save_selection_as_ROI("line_ruffles");
+    waitForUser("Trace out the lines splitting out ruffles (please ensure the 2 ends of the lines are outside of the cell area) with shortcut key [a] and hit OK when you're done");
 }
 
 // Functions for ROI splitting
