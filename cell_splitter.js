@@ -50,10 +50,9 @@ function save_selection_as_ROI(ROI_name) {
 }
 
 function save_all_roi() {
-    selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area", "non_ruffles", "ruffles"));
+    selectROIsByRegex("^(whole_cell|line_ruffles_.*|line_ruffles_area_.*|non_ruffles|ruffles_.*)$");
 
     stack_title = get_stack_name();
-
 
     save_directory = judge_make_directory("Fiji_output\\ROI");
     roiManager("Save", save_directory + "\\" + stack_title + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
@@ -61,7 +60,7 @@ function save_all_roi() {
     // Caveat here is that when you have multiple ROI selected in the ROI manager, you should save it as .zip; when you have only 1 ROI selected, you should save it as .roi--in this case, if you still save as .zip, it'll save all the ROI in the current ROI manager
 }
 
-function selectROIsByNames(nameArray) {
+function selectROIsByRegex(regex_pattern) {
     roi_count = roiManager("Count");
     indices = newArray();
     indices_counter = 0;
@@ -70,31 +69,19 @@ function selectROIsByNames(nameArray) {
         roiManager("Select", i);
         roi_name = Roi.getName();
 
-        for (j = 0; j < nameArray.length; j++) {
-            if (matches(roi_name, nameArray[j])) {
-                indices[indices_counter] = i;
-                indices_counter++;
-            }
+        if (matches(roi_name, regex_pattern)) {
+            indices[indices_counter] = i;
+            indices_counter++;
         }
     }
-    if (indices.length > 0) {
 
+    if (indices.length > 0) {
         roiManager("Select", indices); // multi-select
     }
+
+    return indices;
 }
 
-function selectROIByName(roi_name_to_select) {
-    roi_count = roiManager("Count");     // returns array of ROI names
-    for (i = 0; i < roi_count; i++) {
-        roiManager("Select", i);
-        roi_name = Roi.getName();
-
-        if (matches(roi_name, roi_name_to_select)) {
-            return i; // return the index if found
-        }
-    }
-    exit("ROI named '" + roi_name_to_select + "' not found.");
-}
 
 function append_to_array(input_array, append_value) { //ImageJ script seems to lack a very basic append to an array function
     // input_array = Array.concat(input_array, append_value); //This doesn't work in some places since JavaScript passes arrays by reference and this line doesn't modify the input_array in place. When you reassign input_array, it creates a new local variable that doesn't affect the original array
@@ -206,7 +193,7 @@ macro
 "add_selection_to_ROI_manager [a]"
 { //Add current selection into ROI manager
     //If you don't have a selection before this function, you'll have an error
-    run("Add Selection..."); //Add the selection to overlay but doesn't open the ROI manager and doesn't show you the update on the ROI manager
+    run("Add Selection...", "stroke=magenta width=1 fill=none"); //Add the selection to overlay but doesn't open the ROI manager and doesn't show you the update on the ROI manager
 }
 
 function measure_background() { //Iterate through all ROI (background areas selected by the user)
@@ -226,10 +213,7 @@ function measure_background() { //Iterate through all ROI (background areas sele
 
     roiManager("Select", ROI_array); // Select all background rectangles
 
-    roiManager("Measure"); // Measure on the 2nd channel
-
-    setSlice(1); // Go back to 1st channel
-    roiManager("Measure"); // Measure on the 1st channel
+    roiManager("multi-measure measure_all"); // Measure all background ROI on all slices
 
     //Measurements will go to the measurement table
 }
@@ -248,6 +232,7 @@ function average_background() {
     // Initialize an array to store the "Mean" values where "Slice" = 1
     mean_slice_1 = newArray();
     mean_slice_2 = newArray();
+    mean_slice_3 = newArray();
 
     for (row = 0; row < nResults; row++) { // Loop through the rows in the Results Table
         label = getResultLabel(row);
@@ -256,6 +241,8 @@ function average_background() {
             mean_slice_1 = append_to_array(mean_slice_1, getResult("Mean", row));
         } else if ((matches(label, ".*Actin$"))) {
             mean_slice_2 = append_to_array(mean_slice_2, getResult("Mean", row));
+        } else if ((matches(label, ".*DAPI$"))) {
+            mean_slice_3 = append_to_array(mean_slice_3, getResult("Mean", row));
         } else {
             print("Nothing found");
         }
@@ -264,20 +251,17 @@ function average_background() {
 
     avg_background_slice_1 = average_array_num(mean_slice_1);
     avg_background_slice_2 = average_array_num(mean_slice_2);
+    avg_background_slice_3 = average_array_num(mean_slice_3);
 
-    print("Slice 1's average background is " + avg_background_slice_1);
-    print("Slice 2's average background is " + avg_background_slice_2);
 
-    return newArray(avg_background_slice_1, avg_background_slice_2); //ImageJ script language doesn't have something similar to dict
+    return newArray(avg_background_slice_1, avg_background_slice_2, avg_background_slice_3); //ImageJ script language doesn't have something similar to dict
 }
 
 function subtract_background(input_avg_background_array) {
     for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
-        if (i <= 2) { //Skip the last slice, which is the bright-field
-            setSlice(i);
-            run("Subtract...", "value=" + input_avg_background_array[i - 1] + " slice"); //The slice option limits the changes to that specific slice
-            //The index for the array uses [i - 1] here because the array indexes start from 0 but the indexes for slices in a stack start from 1
-        }
+        setSlice(i);
+        run("Subtract...", "value=" + input_avg_background_array[i - 1] + " slice"); //The slice option limits the changes to that specific slice
+        //The index for the array uses [i - 1] here because the array indexes start from 0 but the indexes for slices in a stack start from 1
     }
 }
 
@@ -315,60 +299,91 @@ macro
 macro
 "define_whole_cell_area [x]"
 {
+    roiManager("reset"); // Just in case if any background ROI are remained
+    close("ROI Manager"); // Resetting ROI manager will open the ROI manager and this just closes it
+
+    setSlice(2);
+
     setTool("freehand");
     waitForUser("Trace out the whole cell and hit OK");
 
-    run("Add Selection...", "stroke=red width=1 fill=none"); //Add the traced cell to overlay so user can see it when tracing the splitting line
-    save_selection_as_ROI("whole_cell");
+    run("Add Selection...", "stroke=red width=1 fill=none"); //Add the traced cell to overlay so user can see it when tracing the splitting line.
+
+    // User don't need to press [a] here since you only have 1 whole_cell area
+
+    // save_selection_as_ROI("whole_cell"); // Don't save it now since the splitting lines will be added to the overlay and will be added to ROI altogether
 }
 
 
 macro
-"define_line_splitting_out_ruffles [y]"
+"define_lines_splitting_out_ruffles [y]"
 {
     setTool("freeline");
-    waitForUser("Trace out the line splitting out ruffles (please ensure the 2 ends of the lines are outside of the cell area) and hit OK");
-
-    run("Remove Overlay"); // This is necessary so the whole cell area doesn't add together with the line
-    save_selection_as_ROI("line_ruffles");
+    waitForUser("Trace out the lines splitting out ruffles (please ensure the 2 ends of the lines are outside of the cell area) with shortcut key [a] and hit OK when you're done");
 }
 
 // Functions for ROI splitting
-function turn_line_ruffles_into_shape() {
-    selectROIByName("line_ruffles");
+function find_whole_cell_and_line_ruffles() {
+    roi_count = roiManager("Count");
+    if (roi_count == 0) {
+        return;
+    } else {
+        max_area = 0;
+        line_ruffles_counter = 0;
 
-    Roi.setStrokeWidth(1); // This makes the line's width to be 1 px
-    run("Line to Area"); // This makes a shape or an area that surrounds the original 1 px wide line
-    save_selection_as_ROI("line_ruffles_area");
+        for (i = 0; i < roi_count; i++) {
+            roiManager("Select", i);
+            getStatistics(area, mean, min, max, std); // This measure the area of the ROI and store it in the variable area
+
+            if (area <= max_area) {
+                roiManager("Rename", "line_ruffles_" + line_ruffles_counter);
+                line_ruffles_counter++;
+            } else {
+                max_area = area;
+
+                roiManager("Rename", "whole_cell");
+            }
+        }
+    }
+}
+
+function turn_line_ruffles_into_shape() {
+    all_line_ruffles_idx_array = selectROIsByRegex("^line_ruffles_.*"); // This array contains all the idxes for all the line_ruffles in the ROI manager
+
+    for (i = 0; i < all_line_ruffles_idx_array.length; i++) {
+        roiManager("Select", all_line_ruffles_idx_array[i]);
+
+        roi_name = Roi.getName();
+        parts = split(roi_name, "_");
+        line_ruffles_idx_in_name = parts[parts.length - 1];
+
+        Roi.setStrokeWidth(1); // This makes the line's width to be 1 px
+        run("Line to Area"); // This makes a shape or an area that surrounds the original 1 px wide line
+        save_selection_as_ROI("line_ruffles_area_" + line_ruffles_idx_in_name);
+    }
 }
 
 function split_whole_cell_area_with_line_ruffles() {
-    selectROIsByNames(newArray("whole_cell", "line_ruffles_area"));
+    selectROIsByRegex("^(whole_cell|line_ruffles_area_.*)$"); // This select the ROI named "whole_cell" and the ones started with "line_ruffles_area_"
     roiManager("XOR");
     roiManager("Split");
-}
 
-function extract_roi_from_split() {
-    // Iterate through the ROI list and found the ones that are from the split (their name start with 0)
+    roi_count = roiManager("count");
 
-    roi_count = roiManager("Count");
-    indices = newArray();
-    indices_counter = 0;
-
+    // After a split, some of the resulting ROI are actually a composite selection (this adds a small tail on the non_ruffles and ruffles areas), so I added one more check on each of the roi
     for (i = 0; i < roi_count; i++) {
         roiManager("Select", i);
         roi_name = Roi.getName();
 
-        // print(roi_name);
-        if (matches(roi_name, "^0.*")) { // All sub ROI from the split will have a name starting with 0 (if more later, I guess it'll just be a number but for the purpose of )
-            indices[indices_counter] = i;
-
-            indices_counter++;
+        if (matches(roi_name, "^0.*")) {
+            if (current_composite_selection() == true) {
+                roiManager("Split");
+            } else {
+            }
         }
-
     }
 
-    return indices; // This array contains all the ROI from the split
+    roiManager("Show None"); // This just means to only show the ROI being selected, not all of them
 }
 
 
@@ -412,21 +427,68 @@ function find_non_ruffle_roi_from_split(idxes_roi_from_split) {
     }
 }
 
+function current_composite_selection() {
+    selection_type = selectionType();  // -1 if none
+    if (selection_type == 9) { // 9 is composite
+        return true;
+    } else {
+        return false;
+    }
+}
+
 function subtract_whole_cell_by_non_ruffles() {
-    selectROIsByNames(newArray("whole_cell", "non_ruffles"));
+    selectROIsByRegex("^(whole_cell|non_ruffles)$");
 
     roiManager("XOR");
 
-    save_selection_as_ROI("ruffles");
+    if (current_composite_selection() == true) { // This is when you have multiple ruffles areas
+        roiManager("Split");
+
+        roi_count = roiManager("count");
+
+        ruffles_idx = 0;
+        for (i = 0; i < roi_count; i++) {
+            roiManager("Select", i);
+            roi_name = Roi.getName();
+
+
+            if (matches(roi_name, "^0.*")) {
+                getStatistics(area, mean, min, max, std); // Use the area to filter out the real ruffles area
+                area_threshold = 3; // Those noisy tails will be very small and this threshold can be determined by measurement
+
+                if (area >= area_threshold) {
+                    roiManager("Rename", "ruffles_" + ruffles_idx);
+
+                    ruffles_idx++;
+                }
+
+            }
+        }
+    } else {
+        save_selection_as_ROI("ruffles_0"); // This is the only 1 ruffles area
+    }
+
+    indices = selectROIsByRegex("^0.*");
+    if (indices.length > 0) {
+        roiManager("Delete");
+    } else { // When there's no ROI whose name starts with "0", the last ROI will be selected. If you directly delete, that last ROI will be deleted, even its name doesn't start with "0"
+        roiManager("Deselect");
+    }
 }
 
 macro
 "split_cell_area_by_line_ruffles [s]"
 {
+    run("To ROI Manager"); // Now ROI for whole_cell and all the line_ruffles should be added to the ROI manager
+    roiManager("Show All without labels");
+
+    find_whole_cell_and_line_ruffles();
+
+
     turn_line_ruffles_into_shape();
     split_whole_cell_area_with_line_ruffles();
 
-    idxes_roi_from_split = extract_roi_from_split();
+    idxes_roi_from_split = selectROIsByRegex("^0.*"); // All sub ROI from the split will have a name starting with 0 (if more later, I guess it'll just be a number but for the purpose of, this is enough). This array contains all the ROI from the split
     find_non_ruffle_roi_from_split(idxes_roi_from_split);
 
     subtract_whole_cell_by_non_ruffles();
@@ -439,20 +501,8 @@ macro
 "measure_intensities_on_all_channels [m]"
 {
     // Each one of them is select first and then move channel. If you move channel first, the measurement will occur on back on the channel the ROI was defined
-    selectROIByName("whole_cell");
-    run("Measure"); // Measure on the 2nd channel
-    setSlice(1); // Go back to 1st channel
-    run("Measure"); // Measure on the 1st channel
-
-    selectROIByName("non_ruffles");
-    run("Measure");
-    setSlice(1);
-    run("Measure");
-
-    selectROIByName("ruffles");
-    run("Measure");
-    setSlice(1);
-    run("Measure");
+    selectROIsByRegex("^(whole_cell||non_ruffles|ruffles_.*)$");
+    roiManager("multi-measure measure_all");
 }
 
 macro
@@ -470,8 +520,8 @@ macro
 "save_overlaid_img [i]"
 {
     // After this step, the ROI stack info will be lost so you have to do the measurements before this step
+    selectROIsByRegex("^(whole_cell|line_ruffles_.*|line_ruffles_area_.*)$");
 
-    selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area"));
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
 
 
@@ -483,7 +533,7 @@ macro
             setSlice(i);
             slice_name = getInfo("slice.label"); // slice_name will also contain the stack name here. This need to happen before the run("Flatten", "slice");
 
-            // selectROIByName("ruffles"); // Somehow you cannot select here (you actually don't need to). If you select here, somehow the code will take the slice back to the slice where ROI "ruffles" was defined and made the flattening there
+            // selectROIsByRegex("^ruffles$"); // Somehow you cannot select here (you actually don't need to). If you select here, somehow the code will take the slice back to the slice where ROI "ruffles" was defined and made the flattening there
             roiManager("Show All without labels"); // My labels are "ruffles" and "non_ruffles". Choose not to label ROI on the overlay since the locations are a bit off with such long string labels
             run("Flatten", "slice");
 
@@ -531,7 +581,7 @@ macro
 
     run("define_whole_cell_area [x]");
 
-    run("define_line_splitting_out_ruffles [y]");
+    run("define_lines_splitting_out_ruffles [y]");
 
     run("split_cell_area_by_line_ruffles [s]");
 
@@ -542,5 +592,4 @@ macro
     run("save_overlaid_img [i]");
 
     run("finish_up [f]");
-
 }

@@ -50,9 +50,10 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 <img src="readme_imgs/whole_cell.png" width="300">
 </div>
 
-4. Code asks the user to use the freehand line tool to trace the boarder between the ruffles and other part of the cell.
-   That boarder line is <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$)
+4. Code asks the user to use the freehand line tool to trace the boarders between the ruffles areas and other part of the cell.
+   That boarder line is <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$). For simplicity, the diagram only shows 1 <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$), but the latest version allow user to trace multiples ones with `A` pressed to add
     * Ensure that the terminus of the line go outside the closed shape for cell
+    * For the best performance, on the point when the <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) intersect with the outline of <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$), the <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) should be drawn at __90°__. If this angle has a very small degree, you'll have the risk of having part of the <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) sticks to the children ROI generated from the split in the later step
 
 <div align="center">
 <img src="readme_imgs/line_ruffles.png" width="300">
@@ -60,6 +61,7 @@ This directory stores the code for cell_splitter plugin for ImageJ.
 
 5. With <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) selected, Edit →
    Selection → Properties and set the width as 1 px
+   * The width shouldn't matter here but 1 px tends to give the best result 
 1. Edit → Selection → Line to area and this gives <code style="color : purple">
    line_ruffles_area</code> (${\textsf{\color{purple}purple}}$)
 
@@ -74,6 +76,7 @@ This directory stores the code for cell_splitter plugin for ImageJ.
    ROI from the split, the one with the largest area is <code style="color : blue">
    non_ruffles</code> (${\textsf{\color{blue}blue}}$)
     * XOR works by removing the area that 2 sets are overlapping and keep the ones that aren't overlapped
+    * Due to how this process works, if the original <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) intersects with the <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$) at a very sharp angle, the risk of having part of the line attached to the children ROI from the operation is higher  
 
 <div align="center">
 <img src="readme_imgs/whole_cell_line_ruffles_area_XOR.png" width="300">
