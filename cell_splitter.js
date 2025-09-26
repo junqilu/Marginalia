@@ -357,9 +357,10 @@ function turn_line_ruffles_into_shape() {
         parts = split(roi_name, "_");
         line_ruffles_idx_in_name = parts[parts.length - 1];
 
-    Roi.setStrokeWidth(1); // This makes the line's width to be 1 px
-    run("Line to Area"); // This makes a shape or an area that surrounds the original 1 px wide line
-    save_selection_as_ROI("line_ruffles_area");
+        Roi.setStrokeWidth(1); // This makes the line's width to be 1 px
+        run("Line to Area"); // This makes a shape or an area that surrounds the original 1 px wide line
+        save_selection_as_ROI("line_ruffles_area_" + line_ruffles_idx_in_name);
+    }
 }
 
 function split_whole_cell_area_with_line_ruffles() {
