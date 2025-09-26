@@ -256,21 +256,18 @@ function measure_background() { //Iterate through all ROI (background areas sele
     run("To ROI Manager");
     ROI_count = roiManager("count"); //Obtain the total number of ROI in the manager
 
-    ROI_array = newArray(ROI_count);
     for (i = 0; i < ROI_count; i++) { //Iterate through all ROI
         //All the ROIs' names are in the format of "count-4digit" so the original order of ROIs is correct
         roiManager("Select", i); //Select each ROI by order
 
         roiManager("Rename", "Background_" + i + 1); //Rename because the original name has a random 4-digit number as part of it. i+1 because the index should start from 1 from a biological perspective
-        ROI_array[i] = i;
     }
 
     //print_array(ROI_array);
 
-    roiManager("Select", ROI_array); // Select all background rectangles
+    selectROIsByRegex("^Background_.*");
 
     roiManager("multi-measure measure_all"); // Measure all background ROI on all slices
-
     //Measurements will go to the measurement table
 }
 
