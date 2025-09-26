@@ -69,13 +69,6 @@ function selectROIsByRegex(regex_pattern) {
         roiManager("Select", i);
         roi_name = Roi.getName();
 
-        for (j = 0; j < nameArray.length; j++) {
-            if (matches(roi_name, nameArray[j])) {
-                indices[indices_counter] = i;
-                indices_counter++;
-            }
-        }
-    }
         if (matches(roi_name, regex_pattern)) {
             indices[indices_counter] = i;
             indices_counter++;
