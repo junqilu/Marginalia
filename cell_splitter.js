@@ -307,8 +307,11 @@ macro
     setTool("freehand");
     waitForUser("Trace out the whole cell and hit OK");
 
-    run("Add Selection...", "stroke=red width=1 fill=none"); //Add the traced cell to overlay so user can see it when tracing the splitting line
-    save_selection_as_ROI("whole_cell");
+    run("Add Selection...", "stroke=red width=1 fill=none"); //Add the traced cell to overlay so user can see it when tracing the splitting line.
+
+    // User don't need to press [a] here since you only have 1 whole_cell area
+
+    // save_selection_as_ROI("whole_cell"); // Don't save it now since the splitting lines will be added to the overlay and will be added to ROI altogether
 }
 
 
