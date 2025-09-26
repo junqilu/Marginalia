@@ -50,10 +50,9 @@ function save_selection_as_ROI(ROI_name) {
 }
 
 function save_all_roi() {
-    selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area", "non_ruffles", "ruffles"));
+    selectROIsByRegex("^(whole_cell|line_ruffles_.*|line_ruffles_area_.*|non_ruffles|ruffles_.*)$");
 
     stack_title = get_stack_name();
-
 
     save_directory = judge_make_directory("Fiji_output\\ROI");
     roiManager("Save", save_directory + "\\" + stack_title + ".zip"); //Save as a .zip rather than a .roi here since importing .zip to ImageJ will put things into the ROI manager, while importing .roi will simply make the selection again without adding anything to the ROI manager
@@ -61,7 +60,7 @@ function save_all_roi() {
     // Caveat here is that when you have multiple ROI selected in the ROI manager, you should save it as .zip; when you have only 1 ROI selected, you should save it as .roi--in this case, if you still save as .zip, it'll save all the ROI in the current ROI manager
 }
 
-function selectROIsByNames(nameArray) {
+function selectROIsByRegex(regex_pattern) {
     roi_count = roiManager("Count");
     indices = newArray();
     indices_counter = 0;
@@ -77,24 +76,19 @@ function selectROIsByNames(nameArray) {
             }
         }
     }
-    if (indices.length > 0) {
-
-        roiManager("Select", indices); // multi-select
-    }
-}
-
-function selectROIByName(roi_name_to_select) {
-    roi_count = roiManager("Count");     // returns array of ROI names
-    for (i = 0; i < roi_count; i++) {
-        roiManager("Select", i);
-        roi_name = Roi.getName();
-
-        if (matches(roi_name, roi_name_to_select)) {
-            return i; // return the index if found
+        if (matches(roi_name, regex_pattern)) {
+            indices[indices_counter] = i;
+            indices_counter++;
         }
     }
-    exit("ROI named '" + roi_name_to_select + "' not found.");
+
+    if (indices.length > 0) {
+        roiManager("Select", indices); // multi-select
+    }
+
+    return indices;
 }
+
 
 function append_to_array(input_array, append_value) { //ImageJ script seems to lack a very basic append to an array function
     // input_array = Array.concat(input_array, append_value); //This doesn't work in some places since JavaScript passes arrays by reference and this line doesn't modify the input_array in place. When you reassign input_array, it creates a new local variable that doesn't affect the original array
@@ -335,7 +329,14 @@ macro
 
 // Functions for ROI splitting
 function turn_line_ruffles_into_shape() {
-    selectROIByName("line_ruffles");
+    all_line_ruffles_idx_array = selectROIsByRegex("^line_ruffles_.*"); // This array contains all the idxes for all the line_ruffles in the ROI manager
+
+    for (i = 0; i < all_line_ruffles_idx_array.length; i++) {
+        roiManager("Select", all_line_ruffles_idx_array[i]);
+
+        roi_name = Roi.getName();
+        parts = split(roi_name, "_");
+        line_ruffles_idx_in_name = parts[parts.length - 1];
 
     Roi.setStrokeWidth(1); // This makes the line's width to be 1 px
     run("Line to Area"); // This makes a shape or an area that surrounds the original 1 px wide line
@@ -343,7 +344,7 @@ function turn_line_ruffles_into_shape() {
 }
 
 function split_whole_cell_area_with_line_ruffles() {
-    selectROIsByNames(newArray("whole_cell", "line_ruffles_area"));
+    selectROIsByRegex("^(whole_cell|line_ruffles_area_.*)$"); // This select the ROI named "whole_cell" and the ones started with "line_ruffles_area_"
     roiManager("XOR");
     roiManager("Split");
 }
@@ -413,7 +414,7 @@ function find_non_ruffle_roi_from_split(idxes_roi_from_split) {
 }
 
 function subtract_whole_cell_by_non_ruffles() {
-    selectROIsByNames(newArray("whole_cell", "non_ruffles"));
+    selectROIsByRegex("^(whole_cell|non_ruffles)$");
 
     roiManager("XOR");
 
@@ -426,7 +427,7 @@ macro
     turn_line_ruffles_into_shape();
     split_whole_cell_area_with_line_ruffles();
 
-    idxes_roi_from_split = extract_roi_from_split();
+    idxes_roi_from_split = selectROIsByRegex("^0.*"); // All sub ROI from the split will have a name starting with 0 (if more later, I guess it'll just be a number but for the purpose of, this is enough). This array contains all the ROI from the split
     find_non_ruffle_roi_from_split(idxes_roi_from_split);
 
     subtract_whole_cell_by_non_ruffles();
@@ -439,20 +440,8 @@ macro
 "measure_intensities_on_all_channels [m]"
 {
     // Each one of them is select first and then move channel. If you move channel first, the measurement will occur on back on the channel the ROI was defined
-    selectROIByName("whole_cell");
-    run("Measure"); // Measure on the 2nd channel
-    setSlice(1); // Go back to 1st channel
-    run("Measure"); // Measure on the 1st channel
-
-    selectROIByName("non_ruffles");
-    run("Measure");
-    setSlice(1);
-    run("Measure");
-
-    selectROIByName("ruffles");
-    run("Measure");
-    setSlice(1);
-    run("Measure");
+    selectROIsByRegex("^(whole_cell||non_ruffles|ruffles_.*)$");
+    roiManager("multi-measure measure_all");
 }
 
 macro
@@ -470,6 +459,7 @@ macro
 "save_overlaid_img [i]"
 {
     // After this step, the ROI stack info will be lost so you have to do the measurements before this step
+    selectROIsByRegex("^(whole_cell|line_ruffles_.*|line_ruffles_area_.*)$");
 
     selectROIsByNames(newArray("whole_cell", "line_ruffles", "line_ruffles_area"));
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
@@ -483,7 +473,7 @@ macro
             setSlice(i);
             slice_name = getInfo("slice.label"); // slice_name will also contain the stack name here. This need to happen before the run("Flatten", "slice");
 
-            // selectROIByName("ruffles"); // Somehow you cannot select here (you actually don't need to). If you select here, somehow the code will take the slice back to the slice where ROI "ruffles" was defined and made the flattening there
+            // selectROIsByRegex("^ruffles$"); // Somehow you cannot select here (you actually don't need to). If you select here, somehow the code will take the slice back to the slice where ROI "ruffles" was defined and made the flattening there
             roiManager("Show All without labels"); // My labels are "ruffles" and "non_ruffles". Choose not to label ROI on the overlay since the locations are a bit off with such long string labels
             run("Flatten", "slice");
 
