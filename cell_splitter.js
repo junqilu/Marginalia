@@ -441,7 +441,39 @@ function subtract_whole_cell_by_non_ruffles() {
 
     roiManager("XOR");
 
-    save_selection_as_ROI("ruffles");
+    if (current_composite_selection() == true) { // This is when you have multiple ruffles areas
+        roiManager("Split");
+
+        roi_count = roiManager("count");
+
+        ruffles_idx = 0;
+        for (i = 0; i < roi_count; i++) {
+            roiManager("Select", i);
+            roi_name = Roi.getName();
+
+
+            if (matches(roi_name, "^0.*")) {
+                getStatistics(area, mean, min, max, std); // Use the area to filter out the real ruffles area
+                area_threshold = 3; // Those noisy tails will be very small and this threshold can be determined by measurement
+
+                if (area >= area_threshold) {
+                    roiManager("Rename", "ruffles_" + ruffles_idx);
+
+                    ruffles_idx++;
+                }
+
+            }
+        }
+    } else {
+        save_selection_as_ROI("ruffles_0"); // This is the only 1 ruffles area
+    }
+
+    indices = selectROIsByRegex("^0.*");
+    if (indices.length > 0) {
+        roiManager("Delete");
+    } else { // When there's no ROI whose name starts with "0", the last ROI will be selected. If you directly delete, that last ROI will be deleted, even its name doesn't start with "0"
+        roiManager("Deselect");
+    }
 }
 
 macro
