@@ -193,7 +193,7 @@ macro
 "add_selection_to_ROI_manager [a]"
 { //Add current selection into ROI manager
     //If you don't have a selection before this function, you'll have an error
-    run("Add Selection..."); //Add the selection to overlay but doesn't open the ROI manager and doesn't show you the update on the ROI manager
+    run("Add Selection...", "stroke=magenta width=1 fill=none"); //Add the selection to overlay but doesn't open the ROI manager and doesn't show you the update on the ROI manager
 }
 
 function measure_background() { //Iterate through all ROI (background areas selected by the user)
