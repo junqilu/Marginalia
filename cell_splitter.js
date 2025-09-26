@@ -299,6 +299,11 @@ macro
 macro
 "define_whole_cell_area [x]"
 {
+    roiManager("reset"); // Just in case if any background ROI are remained
+    close("ROI Manager"); // Resetting ROI manager will open the ROI manager and this just closes it
+
+    setSlice(2);
+
     setTool("freehand");
     waitForUser("Trace out the whole cell and hit OK");
 
