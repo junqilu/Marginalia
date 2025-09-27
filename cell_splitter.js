@@ -308,15 +308,15 @@ function rename_stack_and_record() {
 function rename_slices() {
     filename = get_stack_name();
 
-    //1st slice is the 405 nm image
+    //1st slice is the target gene image
     setSlice(1);
     run("Set Label...", "label=[" + filename + "_LactC2]");
 
-    //2nd slice is the 488 nm image
+    //2nd slice is the actin image
     setSlice(2);
     run("Set Label...", "label=[" + filename + "_Actin]");
 
-    //3rd slice is the brightfield image
+    //3rd slice is the DAPI image
     if (nSlices > 2) { //This means you have a brightfield image in the stack
         setSlice(3);
         run("Set Label...", "label=[" + filename + "_DAPI]");
