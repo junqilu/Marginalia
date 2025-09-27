@@ -325,7 +325,7 @@ function rename_slices() {
 
 
 function display_with_auto_contrast() {
-    contrast_sturated_pixels_percentages = newArray(0.1, 1); // These numbers are manually tested to be the best for each slice. You can run run("Enhance Contrast", "saturated="+number); in the new macro window to test multiple numbers for a slice and find the best one
+    contrast_sturated_pixels_percentages = newArray(0.1, 0.1); // These numbers are manually tested to be the best for each slice. You can run run("Enhance Contrast", "saturated="+number); in the new macro window to test multiple numbers for a slice and find the best one
 
     for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
         //nSlices is the predefined variable that stores the total number of slices in a stack
