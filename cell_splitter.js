@@ -287,13 +287,18 @@ function rename_stack_and_record() {
         for (i = 0; i < processeed_img_filenames.length; i++) {
             filename_line = processeed_img_filenames[i];
 
-            filename_parts = split(filename_line, "_");
+            last_underscore_position = lastIndexOf(filename_line, "_");
+            recorded_filename = substring(filename_line, 0, last_underscore_position);
 
-            idx = parseInt(filename_parts[filename_parts.length - 1]);
-            if (idx <= max_idx) {
+            if (recorded_filename == filename) {
+                filename_parts = split(filename_line, "_");
 
-            } else {
-                max_idx = idx;
+                idx = parseInt(filename_parts[filename_parts.length - 1]);
+                if (idx <= max_idx) {
+
+                } else {
+                    max_idx = idx;
+                }
             }
         }
 
