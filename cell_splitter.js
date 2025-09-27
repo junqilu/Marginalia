@@ -371,8 +371,14 @@ function measure_background() { //Iterate through all ROI (background areas sele
     //print_array(ROI_array);
 
     selectROIsByRegex("^Background_.*");
+    // roiManager("multi-measure measure_all"); // Measure all background ROI on all slices. Later after I used the smart_wait_for_user, somehow this line will pop out the multiple measure window, which is very annoying. I debugged in multiple ways, but still cannot figure out why. Like I can pause the code before this line, and run this line in the macro editor, and it doesn't trigger the window. Another function also run these 2 lines, but it doesn't trigger the window. I decided to bypass this issue using the for loop below which gives the same results
 
-    roiManager("multi-measure measure_all"); // Measure all background ROI on all slices
+    stackSize = nSlices;   // nSlices can change during iterations so this is a safer way of iterating through slices
+    for (i = 1; i <= stackSize; i++) {
+        setSlice(i);
+
+        roiManager("Measure");
+    }
     //Measurements will go to the measurement table
 }
 
