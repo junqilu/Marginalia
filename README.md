@@ -54,6 +54,7 @@ This directory stores the code for cell_splitter plugin for ImageJ.
    That boarder line is <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$). For simplicity, the diagram only shows 1 <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$), but the latest version allow user to trace multiples ones with `A` pressed to add
     * Ensure that the terminus of the line go outside the closed shape for cell
     * For the best performance, on the point when the <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) intersect with the outline of <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$), the <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) should be drawn at __90°__. If this angle has a very small degree, you'll have the risk of having part of the <code style="color : orange">line_ruffles</code> (${\textsf{\color{orange}orange}}$) sticks to the children ROI generated from the split in the later step
+      * Larger images tend to have lower risk of this issue since they are less granular
 
 <div align="center">
 <img src="readme_imgs/line_ruffles.png" width="300">
