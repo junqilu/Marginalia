@@ -308,15 +308,15 @@ function rename_stack_and_record() {
 function rename_slices() {
     filename = get_stack_name();
 
-    //1st slice is the 405 nm image
+    //1st slice is the target gene image
     setSlice(1);
     run("Set Label...", "label=[" + filename + "_LactC2]");
 
-    //2nd slice is the 488 nm image
+    //2nd slice is the actin image
     setSlice(2);
     run("Set Label...", "label=[" + filename + "_Actin]");
 
-    //3rd slice is the brightfield image
+    //3rd slice is the DAPI image
     if (nSlices > 2) { //This means you have a brightfield image in the stack
         setSlice(3);
         run("Set Label...", "label=[" + filename + "_DAPI]");
@@ -325,7 +325,7 @@ function rename_slices() {
 
 
 function display_with_auto_contrast() {
-    contrast_sturated_pixels_percentages = newArray(0.1, 1); // These numbers are manually tested to be the best for each slice. You can run run("Enhance Contrast", "saturated="+number); in the new macro window to test multiple numbers for a slice and find the best one
+    contrast_sturated_pixels_percentages = newArray(0.1, 0.1); // These numbers are manually tested to be the best for each slice. You can run run("Enhance Contrast", "saturated="+number); in the new macro window to test multiple numbers for a slice and find the best one
 
     for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
         //nSlices is the predefined variable that stores the total number of slices in a stack
@@ -371,8 +371,14 @@ function measure_background() { //Iterate through all ROI (background areas sele
     //print_array(ROI_array);
 
     selectROIsByRegex("^Background_.*");
+    // roiManager("multi-measure measure_all"); // Measure all background ROI on all slices. Later after I used the smart_wait_for_user, somehow this line will pop out the multiple measure window, which is very annoying. I debugged in multiple ways, but still cannot figure out why. Like I can pause the code before this line, and run this line in the macro editor, and it doesn't trigger the window. Another function also run these 2 lines, but it doesn't trigger the window. I decided to bypass this issue using the for loop below which gives the same results
 
-    roiManager("multi-measure measure_all"); // Measure all background ROI on all slices
+    stackSize = nSlices;   // nSlices can change during iterations so this is a safer way of iterating through slices
+    for (i = 1; i <= stackSize; i++) {
+        setSlice(i);
+
+        roiManager("Measure");
+    }
     //Measurements will go to the measurement table
 }
 
