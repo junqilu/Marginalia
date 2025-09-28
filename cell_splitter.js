@@ -489,7 +489,7 @@ macro
 "define_lines_splitting_out_ruffles [y]"
 {
     setTool("freeline");
-    smart_wait_for_user("Trace out the lines splitting out ruffles with shortcut key [a].\nPlease ensure the 2 ends of the lines are outside of the cell area\.n", 100, 3, 100);
+    smart_wait_for_user("Trace out the lines splitting out ruffles with shortcut key [a].\nPlease ensure the 2 ends of the lines are outside of the cell area.\n", 100, 3, 100);
 }
 
 // Functions for ROI splitting
