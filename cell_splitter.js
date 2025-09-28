@@ -535,7 +535,159 @@ function turn_line_ruffles_raw_into_shape() {
     }
 }
 
-function split_whole_cell_area_with_line_ruffles() {
+function bridge_diagonal_only_contacts() { // Adds pixels to convert 8-connectivity corner touches into 4-connected bridges
+    // This is different from dilation, which adds a certain amount of pixels on all 4 directions of a white pixel
+    // Running this function on the same mask multiple time won't make the area thicker and thicker--it only connect the pixels once and that's it
+
+    // Technically, you can use a 2 by 2 matrix to judge but ImageJ native matrix calculation requires matrix to be 3 by 3 at minimum. Using a 2 by 2 matrix is possible but that involves move the image around and that just complicates things
+
+    run("8-bit");
+    setForegroundColor(255, 255, 255); //White
+    setBackgroundColor(0, 0, 0); // Black
+
+    getDimensions(width, height, c, z, t);
+
+    // In ImageJ's mask view, the coordinate's origin is in the top left corner
+    // Your right is X+ and left is X-
+    // You up is Y- and down is Y+
+
+    // Collect bridging pixels first (so we don't affect detection mid-scan). Native imageJ macro language doesn't have nested arrays
+    xs = newArray();
+    ys = newArray();
+    n = 0;
+
+    // Helper to read pixel quickly
+    function P(x, y) {
+        return getPixel(x, y);
+    }
+
+    // These are flickers. Since for the 2 situations that need a pixel to be filled in, each has 2 ways, I used the 2 flickers below to flip such that the 2 ways of filling in are alternated for a more even result
+    right_up_add_pixel_label = "right"; // Alterates between "right" and "up"
+    right_down_add_pixel_label = "right"; // Alterates between "right" and "down"
+
+    for (y = 1; y < height - 1; y++) {
+        for (x = 1; x < width - 1; x++) {
+
+            if (P(x, y) != 255) { // Current pixel is black, skip
+                continue;
+            } else {
+                right = x + 1;
+                left = x - 1;
+                up = y - 1;
+                down = y + 1;
+
+                up_pixel = P(x, up);
+                down_pixel = P(x, down);
+                left_pixel = P(left, y);
+                right_pixel = P(right, y);
+
+                right_up_pixel = P(right, up);
+                right_down_pixel = P(right, down);
+                left_up_pixel = P(left, up);
+                left_down_pixel = P(left, down);
+
+                if (right_up_pixel == 255 && right_pixel == 0 && up_pixel == 0) { // right_up_pixel is white and connected by the right up corner
+                    // You can fill in the right_pixel || up_pixel || both
+
+                    if (right_up_add_pixel_label == "right") {
+                        xs[n] = right;
+                        ys[n] = y;
+                        n++;
+
+                        right_up_add_pixel_label = "up";
+
+                    } else if (right_up_add_pixel_label == "up") {
+                        xs[n] = x;
+                        ys[n] = up;
+                        n++;
+
+                        right_up_add_pixel_label = "right";
+
+                    } else {
+                        print("right_up_add_pixel_label has unexpected value!");
+                        return;
+                    }
+                }
+
+                // The check below is not necessary since right_up_pixel and left_down_pixel are on the same diagonal direction. This can save time
+                // if (left_down_pixel == 255 && left_pixel == 0 && down_pixel == 0) { // left_down_pixel is white and connected by the left down corner
+                //     // You can fill in the left_pixel || down_pixel || both
+                //
+                //     xs = Array.concat(xs, newArray(left));
+                //     ys = Array.concat(ys, newArray(y));
+                //     n++;
+                // }
+
+                if (right_down_pixel == 255 && right_pixel == 0 && down_pixel == 0) { // right_down_pixel is white and connected by the right down corner
+                    // You can fill in the right_pixel || down_pixel || both
+
+                    if (right_down_add_pixel_label == "right") {
+                        xs[n] = right;
+                        ys[n] = y;
+                        n++;
+
+                        right_down_add_pixel_label = "down";
+
+                    } else if (right_down_add_pixel_label == "down") {
+                        xs[n] = x;
+                        ys[n] = down;
+                        n++;
+
+                        right_down_add_pixel_label = "right";
+
+                    } else {
+                        print("right_down_add_pixel_label has unexpected value!");
+                        return;
+                    }
+                }
+
+                // The check below is not necessary since right_down_pixel and left_up_pixel are on the same diagonal direction. This can save time
+                // if (left_up_pixel == 255 && left_pixel == 0 && up_pixel == 0) { // left_up_pixel is white and connected by the left up corner
+                //     // You can fill in the left_pixel || up_pixel || both
+                //
+                //     xs = Array.concat(xs, newArray(left));
+                //     ys = Array.concat(ys, newArray(y));
+                //     n++;
+                // }
+            }
+        }
+    }
+
+    for (i = 0; i < n; i++) { // Write all bridge pixels. You can also use xs and ys to first fill in all the additional pixels on a blank black new mask and do an OR with the original mask to speed up. I'm fine with the current speed using this simple for loop
+        setPixel(xs[i], ys[i], 255);
+    }
+}
+
+function truncate_line_ruffles_raw_area_by_whole_cell() { // This turns line_ruffles_raw_area to line_ruffles_area, aka trim off the parts that are outside the whole_cell area
+    roi_count = roiManager("count");
+    for (i = 0; i < roi_count; i++) {
+        roiManager("Select", i);
+        roi_name = Roi.getName();
+
+        if (matches(roi_name, "^line_ruffles_raw_area_.*")) {
+            selectROIsByRegex("^(whole_cell|" + roi_name + ")$");
+
+            roiManager("AND"); //After this line, the selection should be the cut version of the line_ruffles_raw_area, aka the line_ruffles_area. However, this shape is usually a composite.
+
+            // Lines below convert a selected composite ROI into a single ROI by making a mask and then use that mask to make back a selection
+            run("Create Mask"); // This pop out a mask window
+
+            bridge_diagonal_only_contacts(); // This is a critical step where it helps solve the small tail issues by filling in 1 pixel between 2 pixels that are only connected on a corner to make all the pixels are connected by a side
+
+            run("Create Selection");
+
+            parts = split(roi_name, "_");
+            line_ruffles_raw_area_idx_in_name = parts[parts.length - 1];
+
+            save_selection_as_ROI("line_ruffles_area_" + line_ruffles_raw_area_idx_in_name);
+
+            close("Mask"); // Close the mask window
+        }
+    }
+}
+
+
+function split_whole_cell_area_with_line_ruffles_area() {
     selectROIsByRegex("^(whole_cell|line_ruffles_area_.*)$"); // This select the ROI named "whole_cell" and the ones started with "line_ruffles_area_"
     roiManager("XOR");
     roiManager("Split");
