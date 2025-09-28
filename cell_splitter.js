@@ -853,6 +853,15 @@ macro
     selectROIsByRegex("^(whole_cell|line_ruffles_raw_.*|line_ruffles_raw_area_.*|line_ruffles_area_.*)$");
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
 
+    // Change the color for the ROI you want to overlay. Overlay will happen on the red and green channel so avoid those 2 colors
+    roiManager("Deselect");
+    selectROIsByRegex("^non_ruffles$");
+    roiManager("Set Color", "cyan");
+
+    roiManager("Deselect");
+    selectROIsByRegex("^ruffles_.*$");
+    roiManager("Set Color", "yellow");
+
 
     original_stack_window = getTitle();
     for (i = 1; i < nSlices + 1; i++) {
