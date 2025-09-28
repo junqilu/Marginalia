@@ -850,8 +850,7 @@ macro
 "save_overlaid_img [i]"
 {
     // After this step, the ROI stack info will be lost so you have to do the measurements before this step
-    selectROIsByRegex("^(whole_cell|line_ruffles_.*|line_ruffles_area_.*)$");
-
+    selectROIsByRegex("^(whole_cell|line_ruffles_raw_.*|line_ruffles_raw_area_.*|line_ruffles_area_.*)$");
     roiManager("Delete"); // Now you should have only "ruffles" and "non-ruffles"
 
 
