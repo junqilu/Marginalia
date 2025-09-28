@@ -808,11 +808,15 @@ macro
     run("To ROI Manager"); // Now ROI for whole_cell and all the line_ruffles should be added to the ROI manager
     roiManager("Show All without labels");
 
-    find_whole_cell_and_line_ruffles();
+
+    // Use whole_cell to cut line_ruffles_raw to get line_ruffles
+    find_whole_cell_and_line_ruffles_raw();
+    turn_line_ruffles_raw_into_shape(); // Now you have line_ruffles_raw_area
+    truncate_line_ruffles_raw_area_by_whole_cell(); // This turns line_ruffles_raw_area to line_ruffles_area
 
 
-    turn_line_ruffles_into_shape();
-    split_whole_cell_area_with_line_ruffles();
+    // Use line_ruflles_area to split whole_cell
+    split_whole_cell_area_with_line_ruffles_area();
 
     idxes_roi_from_split = selectROIsByRegex("^0.*"); // All sub ROI from the split will have a name starting with 0 (if more later, I guess it'll just be a number but for the purpose of, this is enough). This array contains all the ROI from the split
     find_non_ruffle_roi_from_split(idxes_roi_from_split);
