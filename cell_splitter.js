@@ -520,8 +520,9 @@ function find_whole_cell_and_line_ruffles_raw() {
 function turn_line_ruffles_raw_into_shape() {
     all_line_ruffles_raw_idx_array = selectROIsByRegex("^line_ruffles_raw_.*");
 
-    for (i = 0; i < all_line_ruffles_idx_array.length; i++) {
-        roiManager("Select", all_line_ruffles_idx_array[i]);
+    for (i = 0; i < all_line_ruffles_raw_idx_array.length; i++) {
+        line_ruffles_raw_idx = all_line_ruffles_raw_idx_array[i];
+        roiManager("Select", line_ruffles_raw_idx);
 
         roi_name = Roi.getName();
         parts = split(roi_name, "_");
