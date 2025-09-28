@@ -493,7 +493,7 @@ macro
 }
 
 // Functions for ROI splitting
-function find_whole_cell_and_line_ruffles() {
+function find_whole_cell_and_line_ruffles_raw() {
     roi_count = roiManager("Count");
     if (roi_count == 0) {
         return;
@@ -506,7 +506,7 @@ function find_whole_cell_and_line_ruffles() {
             getStatistics(area, mean, min, max, std); // This measure the area of the ROI and store it in the variable area
 
             if (area <= max_area) {
-                roiManager("Rename", "line_ruffles_" + line_ruffles_counter);
+                roiManager("Rename", "line_ruffles_raw_" + line_ruffles_counter);
                 line_ruffles_counter++;
             } else {
                 max_area = area;
@@ -517,8 +517,8 @@ function find_whole_cell_and_line_ruffles() {
     }
 }
 
-function turn_line_ruffles_into_shape() {
-    all_line_ruffles_idx_array = selectROIsByRegex("^line_ruffles_.*"); // This array contains all the idxes for all the line_ruffles in the ROI manager
+function turn_line_ruffles_raw_into_shape() {
+    all_line_ruffles_raw_idx_array = selectROIsByRegex("^line_ruffles_raw_.*");
 
     for (i = 0; i < all_line_ruffles_idx_array.length; i++) {
         roiManager("Select", all_line_ruffles_idx_array[i]);
