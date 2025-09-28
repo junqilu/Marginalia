@@ -895,6 +895,8 @@ macro
 }
 
 function save_processed_stack() {
+    run("Select None"); // Clear any selection currently on the image, so it doesn't get saved into the processed_stack.tiff
+
     filename_stack = get_stack_name();
     save_directory = judge_make_directory("Fiji_output\\processed_stack");
     saveAs("Tiff", save_directory + "\\" + filename_stack + "_processed.tif");
