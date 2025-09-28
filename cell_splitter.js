@@ -531,7 +531,9 @@ function turn_line_ruffles_raw_into_shape() {
         Roi.setStrokeWidth(1); // This makes the line's width to be a given value.
 
         run("Line to Area"); // This makes a shape or an area that surrounds the original 1 px wide line
-        save_selection_as_ROI("line_ruffles_area_" + line_ruffles_idx_in_name);
+        // Although you can directly do logic operations with between lines and shapes (lines will be automatically converted to areas), using this code to explicitly convert a line to area gives you more control
+
+        save_selection_as_ROI("line_ruffles_raw_area_" + line_ruffles_idx_in_name);
     }
 }
 
