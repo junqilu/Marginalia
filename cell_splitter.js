@@ -670,6 +670,7 @@ function truncate_line_ruffles_raw_area_by_whole_cell() { // This turns line_ruf
             selectROIsByRegex("^(whole_cell|" + roi_name + ")$");
 
             roiManager("AND"); //After this line, the selection should be the cut version of the line_ruffles_raw_area, aka the line_ruffles_area. However, this shape is usually a composite.
+            // Doing AND before adding in the bridging pixel is better than reverse since the latter will waste any bridging pixels that are outside the cell and it still needs another mask-selection conversion to avoid it being a composite ROI
 
             // Lines below convert a selected composite ROI into a single ROI by making a mask and then use that mask to make back a selection
             run("Create Mask"); // This pop out a mask window
