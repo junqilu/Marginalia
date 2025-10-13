@@ -869,14 +869,13 @@ macro
         if (i <= 2) { // I only want the overlay image for the 1st 2 slices
             selectWindow(original_stack_window); // Ensure you always go back to the original image stack. This is a 2nd protection the in addition to the close() in the end of the loop
 
-            slice_name = getInfo("slice.label"); // slice_name will also contain the stack name here. This need to happen before the run("Flatten", "slice");
-
             // selectROIsByRegex("^ruffles$"); // Somehow you cannot select here (you actually don't need to). If you select here, somehow the code will take the slice back to the slice where ROI "ruffles" was defined and made the flattening there
             roiManager("Show All without labels"); // My labels are "ruffles" and "non_ruffles". Choose not to label ROI on the overlay since the locations are a bit off with such long string labels
             // If later you want to have more control on the overlay, you can select an ROI, run("Add Selection...");, keep doing these until you finish adding all the ROI to overlay, and then run("Flatten", "slice");
 
             selectROIsByRegex("^(^non_ruffles$|^ruffles_.*$)$"); // You need to select first and then setSlice, since the selection will take you back to the slice that the ROI are defined
             setSlice(i);
+            slice_name = getInfo("slice.label"); // slice_name will also contain the stack name here. This need to happen before the run("Flatten", "slice");
 
             run("Flatten", "slice");
 
