@@ -537,21 +537,37 @@ function turn_line_ruffles_raw_into_shape() {
     }
 }
 
-function bridge_diagonal_only_contacts() { // Adds pixels to convert 8-connectivity corner touches into 4-connected bridges
+function bridge_diagonal_only_contacts(x0, y0, w, h, pad) { // Adds pixels to convert 8-connectivity corner touches into 4-connected bridges
+    // x0, y0, w, h are the ROI’s top-left coordinates and its width/height (from getSelectionBounds). pad is a small expansion margin
+
     // This is different from dilation, which adds a certain amount of pixels on all 4 directions of a white pixel
     // Running this function on the same mask multiple time won't make the area thicker and thicker--it only connect the pixels once and that's it
 
     // Technically, you can use a 2 by 2 matrix to judge but ImageJ native matrix calculation requires matrix to be 3 by 3 at minimum. Using a 2 by 2 matrix is possible but that involves move the image around and that just complicates things
 
+
     run("8-bit");
     setForegroundColor(255, 255, 255); //White
     setBackgroundColor(0, 0, 0); // Black
 
-    getDimensions(width, height, c, z, t);
+    getDimensions(width, height, c, z, t); // These are the total dimensions for the image
 
     // In ImageJ's mask view, the coordinate's origin is in the top left corner
     // Your right is X+ and left is X-
     // You up is Y- and down is Y+
+
+
+    // Determine the smaller scanning window rather than the whole image area. This is done by determining the top left and bottom right point coordinates
+    x_top_left = maxOf(0, x0 - pad); // Goes to the left. The value cannot be smaller than 0. Otherwise, it goes out of the image area
+    y_top_left = maxOf(0, y0 - pad); // Goes up
+    x_bottom_right = minOf(width - 1, x0 + w + pad - 1); // -1 because ImageJ defines ROI bounds in a way similar to array indexing. This value cannot be bigger than image width, or you'll be outside the image area
+    y_bottom_right = minOf(height - 1, y0 + h + pad - 1);
+
+    // Determine the scanning scope. Because the later loop check on neighbouring pixels, setting the limits avoid the loop goes outside the smaller scanning window when checking the pixels on the boarder
+    x_start = maxOf(x_top_left + 1, 1);
+    y_start = maxOf(y_top_left + 1, 1);
+    x_end = minOf(x_bottom_right - 1, width - 2);
+    y_end = minOf(y_bottom_right - 1, height - 2);
 
     // Collect bridging pixels first (so we don't affect detection mid-scan). Native imageJ macro language doesn't have nested arrays
     xs = newArray();
@@ -567,8 +583,8 @@ function bridge_diagonal_only_contacts() { // Adds pixels to convert 8-connectiv
     right_up_add_pixel_label = "right"; // Alterates between "right" and "up"
     right_down_add_pixel_label = "right"; // Alterates between "right" and "down"
 
-    for (y = 1; y < height - 1; y++) {
-        for (x = 1; x < width - 1; x++) {
+    for (y = y_start; y < y_end; y++) {
+        for (x = x_start; x < x_end; x++) {
 
             if (P(x, y) != 255) { // Current pixel is black, skip
                 continue;
@@ -670,12 +686,15 @@ function truncate_line_ruffles_raw_area_by_whole_cell() { // This turns line_ruf
             selectROIsByRegex("^(whole_cell|" + roi_name + ")$");
 
             roiManager("AND"); //After this line, the selection should be the cut version of the line_ruffles_raw_area, aka the line_ruffles_area. However, this shape is usually a composite.
-            // Doing AND before adding in the bridging pixel is better than reverse since the latter will waste any bridging pixels that are outside the cell and it still needs another mask-selection conversion to avoid it being a composite ROI
+            // Doing AND before adding in the bridging pixel is better than reverse since the latter will waste any bridging pixels that are outside the cell, and it still needs another mask-selection conversion to avoid it being a composite ROI
+
+            getSelectionBounds(x0, y0, w, h); // Get the window around the line_ruffles_raw_area. This will be used for the bridge_diagonal_only_contacts() later as a speed up by not scanning the whole image area but just the window around the line_ruffles_raw_area
 
             // Lines below convert a selected composite ROI into a single ROI by making a mask and then use that mask to make back a selection
             run("Create Mask"); // This pop out a mask window
 
-            bridge_diagonal_only_contacts(); // This is a critical step where it helps solve the small tail issues by filling in 1 pixel between 2 pixels that are only connected on a corner to make all the pixels are connected by a side
+            pad = 3; // Usually 1 is enough. This is the additional pixels around the boundary rectangle of the line_ruffles_raw_area that will be used to make the smaller scanning window rather than the whole image area
+            bridge_diagonal_only_contacts(x0, y0, w, h, pad); // This is a critical step where it helps solve the small tail issues by filling in 1 pixel between 2 pixels that are only connected on a corner to make all the pixels are connected by a side
 
             run("Create Selection");
 

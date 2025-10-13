@@ -1,11 +1,6 @@
 # Marginalia
 
-Cell margins are closely associated with cell migration and morphological changes. In cancer biology, they represent
-regions where cellular protrusions and ruffles occur, which are strongly related to malignancy and invasiveness. This makes them a
-critical focus for investigations. However, the most commonly used software for image analysis in cancer biology,
-ImageJ, lacks a dedicated tool to separate cell margins of interest from the rest of the cell. To address this need, I
-developed this plugin that enables users to accurately isolate and analyze multiple cell margin regions from the rest of
-the cell body.
+Similar to how marginalia help scholars interpret the main text, cell margins reveal critical insights into cancer cell behavior for biologists. These boundary regions are where protrusions and ruffles form and are closely linked to metastatic potential, making them a major focus of cancer research. While ImageJ remains one of the most popular tools for analyzing cancer cell morphology, its lack of functionality for defining cell margin areas from the rest of the cell body has limited further detailed analyses. To bridge this gap, I developed __Marginalia__, an ImageJ plugin that empowers researchers to accurately segregate and analyze multiple cell margin regions, including protrusions and ruffles, separately from the main cell body, helping to decode the secrets of cancer cell invasiveness.
 
 ## Input image requirements
 
@@ -220,3 +215,8 @@ across that straight line, it leads to unseparate shapes sometimes (not always h
 
 * Solution: draw the `whole_cell` area as much as possible and only draw `line_ruffles_raw` across the `whole_cell` on
   the lines that were manually drawn
+
+## Licence & Citation
+Copyright (c) 2025 Junqi Lu.
+
+This plugin is distributed under an MIT licence. Please consult the LICENSE file for more details.
