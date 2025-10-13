@@ -1,7 +1,7 @@
-# CellSplitterForRuffles
+# Marginalia
 
 Cell margins are closely associated with cell migration and morphological changes. In cancer biology, they represent
-regions where cellular protrusions occur and are strongly linked to malignancy and invasiveness. This makes them a
+regions where cellular protrusions and ruffles occur, which are strongly related to malignancy and invasiveness. This makes them a
 critical focus for investigations. However, the most commonly used software for image analysis in cancer biology,
 ImageJ, lacks a dedicated tool to separate cell margins of interest from the rest of the cell. To address this need, I
 developed this plugin that enables users to accurately isolate and analyze multiple cell margin regions from the rest of
