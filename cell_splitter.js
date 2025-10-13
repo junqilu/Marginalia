@@ -781,7 +781,7 @@ function subtract_whole_cell_by_non_ruffles() {
 
             if (matches(roi_name, "^0.*")) {
                 getStatistics(area, mean, min, max, std); // Use the area to filter out the real ruffles area
-                area_threshold = 3; // Those noisy tails will be very small and this threshold can be determined by measurement
+                area_threshold = 0.1; // Those noisy tails will be very small and this threshold can be determined by measurement
 
                 if (area >= area_threshold) {
                     roiManager("Rename", "ruffles_" + ruffles_idx);
