@@ -1,5 +1,5 @@
 // Basic functions
-function concatenate_array_by_character(input_array, input_character) {
+function concatenate_array_by_character(input_array, input_character) { // Concatenate the items in input_array by input_character
     resultString = ""; // Initialize an empty string to hold the concatenated result
 
 
@@ -38,7 +38,7 @@ function get_stack_name() { //Obtain the stack name from the current window
     return stack_name;
 }
 
-function save_selection_as_ROI(ROI_name) {
+function save_selection_as_ROI(ROI_name) { // Save the current selection as an ROI with the given ROI_name
     roiManager("Add");
 
     n = roiManager("Count");
@@ -49,7 +49,7 @@ function save_selection_as_ROI(ROI_name) {
 
 }
 
-function save_all_roi() {
+function save_all_roi() { // Save all the ROI for later checks if needed
     selectROIsByRegex("^(whole_cell|line_ruffles_.*|line_ruffles_area_.*|non_ruffles|ruffles_.*)$");
 
     stack_title = get_stack_name();
@@ -60,7 +60,7 @@ function save_all_roi() {
     // Caveat here is that when you have multiple ROI selected in the ROI manager, you should save it as .zip; when you have only 1 ROI selected, you should save it as .roi--in this case, if you still save as .zip, it'll save all the ROI in the current ROI manager
 }
 
-function selectROIsByRegex(regex_pattern) {
+function selectROIsByRegex(regex_pattern) { // Select ROI by using regex_pattern
     roi_count = roiManager("Count");
     indices = newArray();
     indices_counter = 0;
@@ -96,7 +96,7 @@ function append_to_array(input_array, append_value) { //ImageJ script seems to l
 
 }
 
-function check_item_in_array(input_array, input_item) {
+function check_item_in_array(input_array, input_item) { // Check whether input_array contains input_item
     output_bool = false;
     for (i = 0; i < input_array.length; i++) {
         if (input_array[i] == input_item) {
@@ -177,12 +177,12 @@ macro
 }
 
 //Functions for file management
-function obtain_desktop_directory() {//Obtain the string for desktop's directory on different computer
+function obtain_desktop_directory() { // Obtain the string for desktop's directory on different computer
     path = getDirectory("home") + "Desktop\\";
     return path;
 }
 
-function judge_directory_exists(directory_str) {
+function judge_directory_exists(directory_str) { // Judge whether directory_str exists
     if (File.isDirectory(directory_str)) {
         return true;
     } else {
@@ -191,7 +191,7 @@ function judge_directory_exists(directory_str) {
 }
 
 
-function judge_make_directory(output_folder_name) { //Check whether output_folder_name is on the desktop and if not, make one on your desktop to store the later outputs from processing
+function judge_make_directory(output_folder_name) { // Check whether output_folder_name is on the desktop and if not, make one on your desktop to store the later outputs from processing
     desktop_directory = obtain_desktop_directory();
 
     output_folder_directory = desktop_directory + output_folder_name + "\\"; //"\\" here ensures it's a folder
@@ -207,7 +207,7 @@ function judge_make_directory(output_folder_name) { //Check whether output_folde
     return output_folder_directory;
 }
 
-function judge_file_exist(file_directory) { //Judge whether file_directory exists
+function judge_file_exist(file_directory) { // Judge whether file_directory exists
     fileExists = File.exists(file_directory);
 
     // Print the result
@@ -218,15 +218,8 @@ function judge_file_exist(file_directory) { //Judge whether file_directory exist
     }
 }
 
-function judge_directory_exists(directory_str) {
-    if (File.isDirectory(directory_str)) {
-        return true;
-    } else {
-        return false;
-    }
-}
 
-function create_text_file(file_directory) {
+function create_text_file(file_directory) { // Create a .txt by file_directory
     if (!File.exists(file_directory)) { // Only create it if it doesn't exist; otherwise the original file will be overwritten
         File.saveString("", file_directory); // Create an empty .txt file
 
@@ -238,7 +231,7 @@ function create_text_file(file_directory) {
     }
 }
 
-function read_text_file_as_array(text_file_directory) {
+function read_text_file_as_array(text_file_directory) { // Read in text_file_directory as an array
     if (judge_file_exist(text_file_directory) == true) {
 
         file_strings = File.openAsString(text_file_directory);
@@ -265,7 +258,7 @@ macro
 
 // Automatic functions
 
-function rename_stack_and_record() {
+function rename_stack_and_record() { // Rename the opened image stack and record it in proceesed_imgs.txt
     // Obtain the original file name
     filename = get_stack_name(); // This is the input filename without the file extension
     if (indexOf(filename, " ") != -1) { // Replace any space by _
@@ -310,7 +303,7 @@ function rename_stack_and_record() {
     rename(filename_new);
 }
 
-function rename_slices() {
+function rename_slices() { // Rename slices by their index in the stack
     filename = get_stack_name();
 
     //1st slice is the target gene image
@@ -329,7 +322,7 @@ function rename_slices() {
 }
 
 
-function display_with_auto_contrast() {
+function display_with_auto_contrast() { // Display slices with better contrast
     contrast_sturated_pixels_percentages = newArray(0.1, 0.1); // These numbers are manually tested to be the best for each slice. You can run run("Enhance Contrast", "saturated="+number); in the new macro window to test multiple numbers for a slice and find the best one
 
     for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
@@ -362,13 +355,13 @@ macro
     run("Add Selection...", "stroke=magenta width=1 fill=none"); //Add the selection to overlay but doesn't open the ROI manager and doesn't show you the update on the ROI manager
 }
 
-function measure_background() { //Iterate through all ROI (background areas selected by the user)
+function measure_background() { // Iterate through all ROI (background areas selected by the user)
     run("To ROI Manager");
-    ROI_count = roiManager("count"); //Obtain the total number of ROI in the manager
+    ROI_count = roiManager("count"); // Obtain the total number of ROI in the manager
 
-    for (i = 0; i < ROI_count; i++) { //Iterate through all ROI
+    for (i = 0; i < ROI_count; i++) { // Iterate through all ROI
         //All the ROIs' names are in the format of "count-4digit" so the original order of ROIs is correct
-        roiManager("Select", i); //Select each ROI by order
+        roiManager("Select", i); // Select each ROI by order
 
         roiManager("Rename", "Background_" + i + 1); //Rename because the original name has a random 4-digit number as part of it. i+1 because the index should start from 1 from a biological perspective
     }
@@ -387,7 +380,7 @@ function measure_background() { //Iterate through all ROI (background areas sele
     //Measurements will go to the measurement table
 }
 
-function save_background_data() {
+function save_background_data() { // Save the background data used for background reduction
     image_name = get_stack_name();
 
     FileName = "background_data_for_" + image_name + ".csv";
@@ -396,7 +389,7 @@ function save_background_data() {
 }
 
 
-function average_background() {
+function average_background() { // Calculate the average background intensity
 
     // Initialize an array to store the "Mean" values where "Slice" = 1
     mean_slice_1 = newArray();
@@ -426,7 +419,7 @@ function average_background() {
     return newArray(avg_background_slice_1, avg_background_slice_2, avg_background_slice_3); //ImageJ script language doesn't have something similar to dict
 }
 
-function subtract_background(input_avg_background_array) {
+function subtract_background(input_avg_background_array) { // Worker for background reduction
     for (i = 1; i < nSlices + 1; i++) { //Iterate all slices
         setSlice(i);
         run("Subtract...", "value=" + input_avg_background_array[i - 1] + " slice"); //The slice option limits the changes to that specific slice
@@ -434,7 +427,7 @@ function subtract_background(input_avg_background_array) {
     }
 }
 
-function force_close_roi_manager() {
+function force_close_roi_manager() { // Force closing the ROI manager
     //Close ROI manager without that annoying window pop out
     roiManager("reset"); //Clean up ROI manager such that when you close the manager in the next line, there's no pop out window
     close("ROI Manager");
@@ -493,7 +486,7 @@ macro
 }
 
 // Functions for ROI splitting
-function find_whole_cell_and_line_ruffles_raw() {
+function find_whole_cell_and_line_ruffles_raw() { // Find ROI for whole_cell and line_ruffles_raw
     roi_count = roiManager("Count");
     if (roi_count == 0) {
         return;
@@ -517,7 +510,7 @@ function find_whole_cell_and_line_ruffles_raw() {
     }
 }
 
-function turn_line_ruffles_raw_into_shape() {
+function turn_line_ruffles_raw_into_shape() { // Convert line_ruffles_raw into line_ruffles_raw_area
     all_line_ruffles_raw_idx_array = selectROIsByRegex("^line_ruffles_raw_.*");
 
     for (i = 0; i < all_line_ruffles_raw_idx_array.length; i++) {
@@ -574,8 +567,7 @@ function bridge_diagonal_only_contacts(x0, y0, w, h, pad) { // Adds pixels to co
     ys = newArray();
     n = 0;
 
-    // Helper to read pixel quickly
-    function P(x, y) {
+    function P(x, y) { // Helper to read pixel quickly
         return getPixel(x, y);
     }
 
@@ -709,7 +701,7 @@ function truncate_line_ruffles_raw_area_by_whole_cell() { // This turns line_ruf
 }
 
 
-function split_whole_cell_area_with_line_ruffles_area() {
+function split_whole_cell_area_with_line_ruffles_area() { // Use the XOR function to split whole_cell by line_ruffles_area
     selectROIsByRegex("^(whole_cell|line_ruffles_area_.*)$"); // This select the ROI named "whole_cell" and the ones started with "line_ruffles_area_"
     roiManager("XOR");
     roiManager("Split");
@@ -733,7 +725,7 @@ function split_whole_cell_area_with_line_ruffles_area() {
 }
 
 
-function find_non_ruffle_roi_from_split(idxes_roi_from_split) {
+function find_non_ruffle_roi_from_split(idxes_roi_from_split) { // From the resulting ROI from XOR split, find the largest ROI to be non_ruffles
     // The non-ruffle area has the largest area from the split. This will also make it easier later if you want to have multiple ruffles since you can just do XOR between the cell body and the non-ruffle area
 
     if (idxes_roi_from_split.length == 0) {
@@ -773,7 +765,7 @@ function find_non_ruffle_roi_from_split(idxes_roi_from_split) {
     }
 }
 
-function current_composite_selection() {
+function current_composite_selection() { // Judge if the selection is composite, aka contains several different ROI
     selection_type = selectionType();  // -1 if none
     if (selection_type == 9) { // 9 is composite
         return true;
@@ -782,7 +774,7 @@ function current_composite_selection() {
     }
 }
 
-function subtract_whole_cell_by_non_ruffles() {
+function subtract_whole_cell_by_non_ruffles() { // Subtract non_ruffles from whole_cell to obtain the composite of all ruffles
     selectROIsByRegex("^(whole_cell|non_ruffles)$");
 
     roiManager("XOR");
@@ -913,7 +905,7 @@ macro
     }
 }
 
-function save_processed_stack() {
+function save_processed_stack() { // Save the processed stack for later check if needed
     run("Select None"); // Clear any selection currently on the image, so it doesn't get saved into the processed_stack.tiff
 
     filename_stack = get_stack_name();
