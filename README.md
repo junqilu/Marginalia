@@ -1,6 +1,9 @@
 # Marginalia
 
 Similar to how marginalia help scholars interpret the main text, cell margins reveal critical insights into cancer cell behavior for biologists. These boundary regions are where protrusions and ruffles form and are closely linked to metastatic potential, making them a major focus of cancer research. While ImageJ remains one of the most popular tools for analyzing cancer cell morphology, its lack of functionality for defining cell margin areas from the rest of the cell body has limited further detailed analyses. To bridge this gap, I developed __Marginalia__, an ImageJ plugin that empowers researchers to accurately segregate and analyze multiple cell margin regions, including protrusions and ruffles, separately from the main cell body, helping to decode the secrets of cancer cell invasiveness.
+   <div align="center">
+   <img src="readme_imgs/overlay_result_img.jpg" width="500">
+   </div>
 
 ## Input image requirements
 
@@ -16,15 +19,28 @@ Similar to how marginalia help scholars interpret the main text, cell margins re
 
 ## Installation & use
 
-1. Download the `cell_splitter.js` file locally from this GitHub page and rename the file's extension to `GEVALIris.ijm`
-1. From ImageJ -> Plugins -> Macros -> Install to install this `cell_splitter.ijm`
+1. Download the `marginalia.js` file locally from this GitHub page and rename the file's extension to `.ijm`
+1. From ImageJ -> Plugins -> Macros -> Install to install this `marginalia.ijm`
 1. Drag and drop an image file (preferred in the format of `.lcm` or `.czi`) into ImageJ
 1. In the menu of `Bio-Formats Import Options`, for the `View stack with` field, ensure to use the `Standard ImageJ`
    option
 1. From ImageJ -> Plugins -> Macros, you can see all the installed macros with the corresponding shortcut key in `[]`
-    * For common use, run `auto_everything` or press `Z`
+    * For common use, run `auto_everything` or press `Z` to intiate the plugin 
     * For debugging in a step-by-step manner, run each macro or press the corresponding key in order
-1. Enjoy your high-speed analysis!
+1. For background reduction, after selecting out an area using the rectangle tool, press `A` before selecting the next background area. When all the background areas have been selected, press `Q` to proceed
+1. After tracing out the cell, press `Q` to proceed
+1. For tracing out the line that separate ruffles from non-ruffle area, after each line is traced, press `A`. After all the lines are traced, press `Q` to proceed
+1. Follow the prompt and enjoy your high-speed analysis!
+
+By default, the plugin allows users to process an image for several times and each time's results will be adding a suffix counter starting from 0. If you need to retrace an image for any reason, and you want to abandon previous results from this image, simply open `proceesed_imgs.txt` in the output folder `Fiji_output`, delete the name for the image, and the new results will overwrite the previous old ones. Without this step, the code thinks you want to process the same image (probably for another cell on the image) and thus will add 1 to the suffix counter and no overwriting will happen. 
+
+Watch the live demo of Marginalia works here: https://youtu.be/ZbhMChgPfRs
+   <div align="center">
+     <a href="https://youtu.be/ZbhMChgPfRs" target="_blank">
+       <img src="readme_imgs/Marginalia_demo_screenshot.png" width="800">
+     </a>
+   </div>
+
 
 ## Code behaviour explanation
 
@@ -109,29 +125,6 @@ ROI below whose names contain __NUMBER__ means there can be multiple of them
    <img src="readme_imgs/line_ruffles_area.png" width="300">
    </div>
 
-    * During this process, filling in the bridge pixels is necessary because <code style="color : purple">
-      line_ruffles_raw_area</code> (${\textsf{\color{purple}purple}}$) are defined with __8-connectivity__ (2 pixels can
-      be connected by any 4 sides or 4 points).
-        * This can be an issue for the later logic operations and can lead to parts with small tails (see the yellow
-          tails sticking out below). Tails are very narrow small areas.
-
-       <div align="center">
-       <img src="readme_imgs/tail_issue.png" width="300">
-       </div>
-
-        * To solve this, I developed `bridge_diagonal_only_contacts()` to fill in 1 pixel to force all pixels to be _
-          _4-connectivity__ (any 2 pixels must be connected by at least 1 side and cannot be connected by just a
-          corner). Test cases are shown below for diagonal lines as masks, with red outlining the original pixels and
-          blue outlining the filled in ones.
-            * Technically, you can also use a 2 × 2 matrix to recognize the diagonal features, but ImageJ requires an
-              odd number matrix, which means 3 × 3 matrix at minimum for calculation. To not overcomplicate the problem,
-              `bridge_diagonal_only_contacts()` was written using relative coordinates with pixel color judgements.
-
-       <div align="center">
-       <img src="readme_imgs/right_down_px_add.png" width="300">
-       <img src="readme_imgs/right_up_px_add.png" width="300">
-       </div>
-
 1. With <code style="color : red">whole_cell</code> (${\textsf{\color{red}red}}$) and <code style="color : green">
    line_ruffles_area</code> (${\textsf{\color{green}green}}$) selected, apply XOR and split the resulting ROI. In the
    multiple resulting
@@ -207,6 +200,18 @@ ROI below whose names contain __NUMBER__ means there can be multiple of them
 
 1. Processed stack is saved locally for quality check later if needed
 
+## Output structure
+A folder called `Fiji_output` will be created when the code is first run. It'll contain 
+* Background_data: contains the .csv for all the background ROI used for background reduction on each image
+* measurements: contains the .csv for the measurements of `whole_cell`, `non_ruffles`, and `ruffles_NUMBER` for each image
+* processed_stack: contains all the processed image in the .tif format
+  * These can be directly opened in ImageJ
+* ROI: contains the .zip of all the ROI used in the image processing for all the images
+  * These can be directly dragged and dropped in ImageJ 
+* ROI_overlay: contains the `non_ruffles`, and `ruffles_NUMBER` overlaid on the first 2 channels in both .jpg and .tif formats
+* processed_imgs.txt: contains image names that have been processed
+
+
 ## Troubleshooting
 
 When the `whole_cell` area is drawn in a way that the user lifts the pen before it reaches to the end, a straight line
@@ -216,7 +221,26 @@ across that straight line, it leads to unseparate shapes sometimes (not always h
 * Solution: draw the `whole_cell` area as much as possible and only draw `line_ruffles_raw` across the `whole_cell` on
   the lines that were manually drawn
 
+During the process of converting `line_ruffles_raw_area` into `line_ruffles_area`, filling in the bridge pixels is necessary because `line_ruffles_raw_area` are defined with __8-connectivity__ (2 pixels can
+be connected by any 4 sides or 4 points). This can be an issue for the later logic operations and can lead to parts with small tails (see the yellow tails sticking out below). Tails are very narrow small areas.
+   <div align="center">
+   <img src="readme_imgs/tail_issue.png" width="300">
+   </div>
+
+* Solution: I developed `bridge_diagonal_only_contacts()` to fill in 1 pixel to force all pixels to be __4-connectivity__ (any 2 pixels must be connected by at least 1 side and cannot be connected by just a corner). Test cases are shown below for diagonal lines as masks, with red outlining the original pixels and blue outlining the filled in ones.
+   <div align="center">
+   <img src="readme_imgs/right_down_px_add.png" width="300">
+   <img src="readme_imgs/right_up_px_add.png" width="300">
+   </div>
+  
+  * Technically, you can also use a 2 × 2 matrix to recognize the diagonal features, but ImageJ requires an odd number matrix, which means 3 × 3 matrix at minimum for calculation. To not overcomplicate the problem, `bridge_diagonal_only_contacts()` was written using relative coordinates with pixel color judgements.
+
+Later I found that scanning through the whole image area can be very time-consuming for big-size images
+  * Solution: later version of `bridge_diagonal_only_contacts()` will only scan the bounding rectangle with a user-definable pad around the `line_ruffles_raw_area`. Since the area outside the scanning window and the image boarders will be black, those pixels won't be scanned, and that saves lots of time
+
 ## Licence & Citation
 Copyright (c) 2025 Junqi Lu.
 
 This plugin is distributed under an MIT licence. Please consult the LICENSE file for more details.
+
+Citation can be found on the right side menu bar of this GitHub page by clicking "Cite this repository"
