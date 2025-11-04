@@ -1,6 +1,3 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
 cff-version: 1.2.0
 title: Marginalia
 message: >-
@@ -13,4 +10,22 @@ authors:
     orcid: 'https://orcid.org/0000-0002-8972-9564'
     affiliation: Duke University
 repository-code: 'https://github.com/junqilu/Marginalia'
+abstract: >-
+  Similar to how marginalia help scholars interpret the main
+  text, cell margins reveal critical insights into cancer
+  cell behavior for biologists. These boundary regions are
+  where protrusions and ruffles form and are closely linked
+  to metastatic potential, making them a major focus of
+  cancer research. While ImageJ remains one of the most
+  popular tools for analyzing cancer cell morphology, its
+  lack of functionality for defining cell margin areas from
+  the rest of the cell body has limited further detailed
+  analyses. To bridge this gap, I developed Marginalia, an
+  ImageJ plugin that empowers researchers to accurately
+  segregate and analyze multiple cell margin regions,
+  including protrusions and ruffles, separately from the
+  main cell body, helping to decode the secrets of cancer
+  cell invasiveness.
 license: MIT
+version: v1.0.0
+date-released: '2025-11-03'
