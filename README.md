@@ -5,6 +5,8 @@ Similar to how marginalia help scholars interpret the main text, cell margins re
    <img src="readme_imgs/overlay_result_img.jpg" width="500">
    </div>
 
+Representative output from Marginalia is shown above. The outermost magenta–yellow contour delineates the full cellular boundary, while regions where a magenta concavity connects with a yellow edge correspond to margin regions containing signals of interest.
+
 ## Input image requirements
 
 * This extension has been tested to work successfully on .lcm and .czi files formats
