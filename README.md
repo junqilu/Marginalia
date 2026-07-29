@@ -249,6 +249,8 @@ Later I found that scanning through the whole image area can be very time-consum
 ## Licence & Citation
 Copyright (c) 2025 Junqi Lu.
 
-This plugin is distributed under an MIT licence. Please consult the LICENSE file for more details.
+This plug-in is distributed under an MIT licence. Please consult the LICENSE file for more details.
 
 Citation can be found on the right side menu bar of this GitHub page by clicking "Cite this repository"
+
+This plug-in has been archived at Zenodo: https://doi.org/10.5281/zenodo.21678537.
