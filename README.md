@@ -7,6 +7,12 @@ Similar to how marginalia help scholars interpret the main text, cell margins re
 
 Representative output from Marginalia is shown above. The outermost magenta–yellow contour delineates the full cellular boundary, while regions where a magenta concavity connects with a yellow edge correspond to margin regions containing signals of interest.
 
+## ImageJ/Fiji version
+This plug-in has been tested successfully and applied in publication-grade quantification with the following ImageJ/Fiji version: 
+* Fiji software with 
+  * ImageJ 1.54p
+  * Java 1.8.0_322 (64-bit)
+
 ## Input image requirements
 
 * This extension has been tested to work successfully on .lcm and .czi files formats
@@ -16,10 +22,10 @@ Representative output from Marginalia is shown above. The outermost magenta–ye
           gene-of-interest expression
     * Actin
         * This slice is used to distinguish ruffles and other parts of the body
-    * DAPI
+    * (Optional) DAPI
         * This slice is not required as it will not be used
 
-## Installation & use
+## Installation & basic use
 
 1. Download the `marginalia.js` file locally from this GitHub page and rename the file's extension to `.ijm`
 1. From ImageJ -> Plugins -> Macros -> Install to install this `marginalia.ijm`
